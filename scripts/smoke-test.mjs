@@ -57,6 +57,19 @@ for (const [market, tag, host] of [
   assert.ok(api.includes(`host: "${host}"`), `API host for ${market} must exist`);
 }
 
+const amazonPicks = JSON.parse(read("assets/amazon-picks.json"));
+assert.equal(amazonPicks.schemaVersion, 1, "Amazon picks schema version must be explicit");
+assert.equal(amazonPicks.products.length, 30, "Publish ten Amazon search candidates for each of three marketplaces");
+for (const market of ["uk", "ae", "us"]) {
+  assert.equal(amazonPicks.products.filter(product => product.market === market).length, 10, `Exactly ten Amazon candidates must exist for ${market}`);
+}
+for (const product of amazonPicks.products) {
+  assert.ok(product.title && product.query && product.sourceUrl, "Every Amazon candidate must have title, search query and source");
+  assert.ok(product.sourceUrl.startsWith("https://www.amazon."), "Bestseller source must be an Amazon HTTPS page");
+}
+assert.ok(js.includes("renderMarketplacePicks"), "Marketplace shortlist renderer must exist");
+assert.ok(shopHtml.includes('id="amazon-picks-grid"'), "Shop must contain the Amazon picks grid");
+
 const affiliateCatalogue = JSON.parse(read("assets/affiliate-products.json"));
 assert.equal(affiliateCatalogue.schemaVersion, 1, "Affiliate catalogue schema version must be explicit");
 assert.ok(Array.isArray(affiliateCatalogue.products), "Affiliate catalogue products must be an array");
