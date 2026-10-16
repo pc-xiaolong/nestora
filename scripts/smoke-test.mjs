@@ -48,7 +48,9 @@ for (const file of htmlFiles) {
     if (/^(?:https?:|mailto:|tel:|data:|javascript:|\/\/)/i.test(value)) continue;
     const pathname = value.split(/[?#]/, 1)[0];
     if (!pathname) continue;
-    const target = normalize(pathname.startsWith("/")\n      ? join(root, pathname.replace(/^\\/+/, ""))\n      : join(root, dirname(file), pathname));
+    const target = normalize(pathname.startsWith("/")
+      ? join(root, pathname.replace(/^\/+/, ""))
+      : join(root, dirname(file), pathname));
     if (!target.startsWith(root)) {
       broken.push(`${file}: unsafe local path ${value}`);
       continue;
