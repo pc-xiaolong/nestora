@@ -81,6 +81,48 @@ test("returns only valid product URLs and allowlisted image hosts", async () => 
   }
 });
 
+
+test("credential rotation invalidates cached OAuth tokens and product results", async () => {
+  const originalFetch = globalThis.fetch;
+  let tokenCalls = 0;
+  let catalogCalls = 0;
+  globalThis.fetch = async input => {
+    const url = String(input);
+    if (url.includes("/auth/o2/token")) {
+      tokenCalls++;
+      return new Response(JSON.stringify({ access_token: "rotation-token-" + tokenCalls, expires_in: 3600 }), { status: 200 });
+    }
+    catalogCalls++;
+    const token = "rotation-token-" + tokenCalls;
+    return new Response(JSON.stringify({
+      searchResult: { items: [{
+        asin: "B012345681",
+        detailPageURL: "https://www.amazon.co.uk/dp/B012345681",
+        itemInfo: { title: { displayValue: "Rotated credential product " + token } },
+        images: { primary: { medium: { url: "https://m.media-amazon.com/images/I/rotation.jpg" } } }
+      }] }
+    }), { status: 200 });
+  };
+  try {
+    const base = { CREATORS_API_CLIENT_ID: "unit-test-rotation-client", CREATORS_API_VERSION: "3.1" };
+    const first = await onRequestGet({
+      request: makeRequest("?market=uk&category=drawers"),
+      env: { ...base, CREATORS_API_CLIENT_SECRET: "test-secret-before-rotation" }
+    });
+    const second = await onRequestGet({
+      request: makeRequest("?market=uk&category=drawers"),
+      env: { ...base, CREATORS_API_CLIENT_SECRET: "test-secret-after-rotation" }
+    });
+    assert.equal(first.status, 200);
+    assert.equal(second.status, 200);
+    assert.equal(tokenCalls, 2, "a rotated secret must obtain a fresh token");
+    assert.equal(catalogCalls, 2, "a rotated secret must not reuse cached product results");
+    assert.match((await second.json()).items[0].title, /rotation-token-2/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("handles Amazon upstream rate limits with a controlled retryable response", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async input => {
