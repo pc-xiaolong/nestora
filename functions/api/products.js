@@ -79,6 +79,7 @@ async function getToken(env, version, credentialKey) {
     body = form.toString();
   }
   const response = await fetch(endpoint, { method: "POST", headers, body, signal: AbortSignal.timeout(8000) });
+  if (response.status === 429) throw new Error("AMAZON_UPSTREAM_RATE_LIMITED");
   if (!response.ok) throw new Error("Amazon token request failed with status " + response.status);
   const data = await response.json();
   if (!data.access_token) throw new Error("Amazon token response did not include an access token");
@@ -176,6 +177,9 @@ export async function onRequestGet({ request, env }) {
     // Product-search responses contain no user-specific data; permit short edge caching.
     return json(result, 200, { "cache-control": "public, max-age=60, s-maxage=300, stale-while-revalidate=60" });
   } catch (error) {
+    if (error && error.message === "AMAZON_UPSTREAM_RATE_LIMITED") {
+      return json({ error: "Amazon authentication is temporarily rate limited. Please wait briefly and retry." }, 503, { "retry-after": "30" });
+    }
     return json({ error: "Product lookup failed. Verify Creators API configuration in Cloudflare." }, 502);
   }
 }
