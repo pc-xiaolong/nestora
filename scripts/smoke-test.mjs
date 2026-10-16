@@ -26,6 +26,9 @@ assert.deepEqual(routes.exclude, [], "No API route exclusions should shadow the 
 const js = read("assets/site.js");
 const api = read("functions/api/products.js");
 assert.ok(!js.includes("CREATORS_API_CLIENT_SECRET"), "Amazon client secrets must never be included in browser JavaScript");
+assert.ok(js.includes("productFinderAbortController.abort()"), "Stale product lookups must be cancelled on state changes");
+assert.ok(js.includes('category.addEventListener("change"'), "Changing the selected category must invalidate previous results");
+assert.ok(js.includes('button.textContent = "Find live products ↗"'), "Product finder button must reset after cancellation");
 assert.ok(api.includes("AbortSignal.timeout(8000)"), "OAuth requests must have a bounded timeout");
 assert.ok(api.includes("AbortSignal.timeout(10000)"), "Catalog requests must have a bounded timeout");
 assert.ok(api.includes("PRODUCT_CACHE_TTL_MS"), "Product results must be cached to reduce repeated upstream calls");
