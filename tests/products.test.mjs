@@ -4,6 +4,31 @@ import { onRequestGet } from "../functions/api/products.js";
 
 const makeRequest = (query = "") => new Request("https://nestora.test/api/products" + query);
 
+test("defaults omitted marketplace to the storefront's UK marketplace", async () => {
+  const originalFetch = globalThis.fetch;
+  let catalogRequest;
+  globalThis.fetch = async (input, init = {}) => {
+    const url = String(input);
+    if (url.includes("/auth/o2/token")) {
+      return new Response(JSON.stringify({ access_token: "default-market-test-token", expires_in: 3600 }), { status: 200 });
+    }
+    catalogRequest = { url, init };
+    return new Response(JSON.stringify({ searchResult: { items: [] } }), { status: 200 });
+  };
+  try {
+    const response = await onRequestGet({
+      request: makeRequest("?category=cables"),
+      env: { CREATORS_API_CLIENT_ID: "unit-test-default-market-uk", CREATORS_API_CLIENT_SECRET: "test-only-secret", CREATORS_API_VERSION: "3.1" }
+    });
+    assert.equal(response.status, 200);
+    assert.equal(catalogRequest.init.headers["x-marketplace"], "www.amazon.co.uk");
+    assert.equal(JSON.parse(catalogRequest.init.body).partnerTag, "trivenico-21");
+    assert.equal((await response.json()).market, "uk");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
 test("rejects unsupported marketplace and category before contacting Amazon", async () => {
   const originalFetch = globalThis.fetch;
   let called = false;
