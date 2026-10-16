@@ -9,6 +9,7 @@ Nestora is a static multi-page affiliate-content website focused on practical sm
 - Hosting: Cloudflare Pages project `nesstora`, connected to `pc-xiaolong/nestora`, production branch `main`, output directory `.`.
 - Static frontend: HTML pages, `assets/styles.css`, and `assets/site.js`.
 - API: `functions/api/products.js`, automatically routed by Cloudflare Pages to `/api/products`.
+- API abuse defence: an isolate-local per-client-IP throttle returns HTTP 429 after 30 requests per 60-second window. This is defense in depth only; configure a Cloudflare edge rate-limiting rule for globally consistent enforcement across isolates and deployments.
 - Function routing: `_routes.json` limits function invocations to `/api/*`, avoiding unnecessary function invocations for static pages.
 - Deployment configuration: `wrangler.jsonc` uses `pages_build_output_dir`, not the Workers static-assets configuration.
 - Quality gate: `.github/workflows/quality.yml` runs syntax and smoke tests on pushes and pull requests.
