@@ -501,3 +501,26 @@ test("rejects a non-array catalogue items field instead of treating it as an emp
     globalThis.fetch = originalFetch;
   }
 });
+
+test("rejects null and primitive catalogue entries with a controlled schema error", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async input => {
+    if (String(input).includes("/auth/o2/token")) {
+      return new Response(JSON.stringify({ access_token: "invalid-entry-test-token", expires_in: 3600 }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ searchResult: { items: [null, "not-a-product"] } }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    });
+  };
+  try {
+    const response = await onRequestGet({
+      request: makeRequest("?market=uk&category=audio"),
+      env: { CREATORS_API_CLIENT_ID: "unit-test-invalid-catalogue-entries", CREATORS_API_CLIENT_SECRET: "test-only-secret", CREATORS_API_VERSION: "3.1" }
+    });
+    assert.equal(response.status, 502);
+    assert.match((await response.json()).error, /unexpected response format/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
