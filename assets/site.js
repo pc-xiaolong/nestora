@@ -39,6 +39,7 @@
     return "uk";
   };
   let current = readMarket();
+  let productFinderRequestId = 0;
   const buildUrl = (query, market = current) => {
     const m = marketplaces[market] || marketplaces.uk;
     return "https://" + m.host + "/s?k=" + encodeURIComponent(query) + "&tag=" + encodeURIComponent(m.tag);
@@ -89,13 +90,14 @@
   const applyMarket = market => {
     if (!marketplaces[market]) return;
     current = market;
+    productFinderRequestId++;
     try { localStorage.setItem(key, market); } catch (_) {}
     // Never leave results from a previous marketplace visible after the user switches stores.
     const liveGrid = document.querySelector("#live-products-grid");
     const liveStatus = document.querySelector("#product-api-status");
     const liveButton = document.querySelector("#find-products");
     if (liveGrid) liveGrid.replaceChildren();
-    if (liveStatus) liveStatus.textContent = "Marketplace changed to Amazon " + marketplaces[market].label + ". Search again to load products for this store.";
+    if (liveStatus) liveStatus.textContent = "Selected marketplace: Amazon " + marketplaces[market].label + ". Search to load products for this store.";
     if (liveButton) liveButton.disabled = false;
     document.querySelectorAll("[data-market-select]").forEach(el => { el.value = market; });
     document.querySelectorAll("[data-amazon-query]").forEach(el => setAmazonLink(el, el.getAttribute("data-amazon-query")));
@@ -142,6 +144,7 @@
     };
 
     button.addEventListener("click", async () => {
+      const requestId = ++productFinderRequestId;
       button.disabled = true;
       button.textContent = "Searching…";
       status.textContent = "Requesting current product details from Amazon…";
@@ -153,6 +156,7 @@
           credentials: "omit"
         });
         const data = await response.json();
+        if (requestId !== productFinderRequestId) return;
         if (!response.ok) {
           if (response.status === 503 && data.configured === false) {
             status.textContent = "Live product lookup is not configured yet. Add approved Amazon Creators API credentials as Cloudflare secrets; meanwhile, use the tagged search links below.";
@@ -168,10 +172,14 @@
         renderItems(data.items);
         status.textContent = data.items.length + " current product listing(s) returned by Amazon for the " + marketplaces[current].label + " marketplace. Check the retailer page for availability and terms.";
       } catch (_) {
-        status.textContent = "Could not reach the product service. Check the deployment and try again; tagged marketplace searches remain available below.";
+        if (requestId === productFinderRequestId) {
+          status.textContent = "Could not reach the product service. Check the deployment and try again; tagged marketplace searches remain available below.";
+        }
       } finally {
-        button.disabled = false;
-        button.textContent = "Find live products ↗";
+        if (requestId === productFinderRequestId) {
+          button.disabled = false;
+          button.textContent = "Find live products ↗";
+        }
       }
     });
   };
