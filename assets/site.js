@@ -26,7 +26,7 @@
    el.setAttribute("rel", "sponsored nofollow noopener");
    el.setAttribute("target", "_blank");
   });
-  document.querySelectorAll("[data-market-label]").forEach(el => { el.textContent = marketplaces[current].label; });
+  document.querySelectorAll("[data-market-label]").forEach(el => { el.textContent = marketplaces[current].label; });\n  if (typeof window.loadNestoraProducts === "function") window.loadNestoraProducts();
  };
  const initGuideFinder = () => {
   const search = document.querySelector("[data-guide-search]");
