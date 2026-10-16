@@ -24,6 +24,7 @@ jobs:
         run: |
           node --input-type=module --check < functions/api/products.js
           node --input-type=module --check < assets/site.js
+          node --input-type=module --check < scripts/production-smoke.mjs
       - name: Check Pages configuration and internal links
         run: node scripts/smoke-test.mjs
       - name: Run product API regression tests
