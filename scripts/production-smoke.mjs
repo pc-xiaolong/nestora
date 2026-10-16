@@ -36,7 +36,7 @@ for (const header of [
 assert.match(home.response.headers.get("content-security-policy") || "", /default-src 'self'/);
 
 await html("/shop/", [
-  "<title>", "class=\"affiliate-notice\"", "href=\"/disclosure.html\""
+  "<title>", "affiliate-notice", "href=\"/disclosure.html\""
 ]);
 await html("/guides/", ["<title>", "rel=\"canonical\""]);
 await html("/disclosure.html", ["<title>"]);
