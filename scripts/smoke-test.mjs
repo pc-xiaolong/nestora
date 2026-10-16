@@ -35,6 +35,8 @@ assert.ok(js.includes('button.textContent = "Find live products ↗"'), "Product
 assert.ok(api.includes("AbortSignal.timeout(8000)"), "OAuth requests must have a bounded timeout");
 assert.ok(api.includes("AbortSignal.timeout(10000)"), "Catalog requests must have a bounded timeout");
 assert.ok(api.includes("PRODUCT_CACHE_TTL_MS"), "Product results must be cached to reduce repeated upstream calls");
+assert.ok(api.includes("env.PRODUCT_RATE_LIMITER.limit"), "API must support Cloudflare rate-limit binding when configured");
+assert.ok(api.includes("Product lookup protection is temporarily unavailable"), "Configured rate-limit binding errors must be handled safely");
 assert.ok(api.includes("env.PRODUCT_RATE_LIMITER.limit"), "API must use the Cloudflare rate-limit binding when configured");
 assert.ok(api.includes("Product lookup protection is temporarily unavailable"), "Configured rate-limit binding failures must fail closed");
 assert.ok(api.includes('url.searchParams.get("market") || "uk"'), "Product API default marketplace must match the UK storefront default");
