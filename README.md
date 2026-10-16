@@ -21,3 +21,6 @@ Nestora is a static affiliate-content website starter focused on practical small
 5. Test all pages, navigation, and responsive layouts on mobile and desktop.
 
 This is a static starter, not a finished or legally reviewed production site.
+
+## Cloudflare deployment
+This repository is configured as a static-assets Cloudflare Worker using `wrangler.jsonc`. Pushes to `main` trigger deployment through Cloudflare Workers Builds.
