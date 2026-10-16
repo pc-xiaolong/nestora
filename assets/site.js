@@ -222,6 +222,102 @@
     });
   };
 
+  const validAffiliateProduct = product => {
+    if (!product || typeof product !== "object" || Array.isArray(product)) return false;
+    if (product.network !== "awin" || product.status !== "active") return false;
+    if (!["uk", "ae", "us"].includes(product.market)) return false;
+    if (typeof product.id !== "string" || !/^[a-z0-9][a-z0-9-]{2,79}$/i.test(product.id)) return false;
+    if (typeof product.title !== "string" || !product.title.trim() || product.title.length > 180) return false;
+    if (typeof product.retailer !== "string" || !product.retailer.trim() || product.retailer.length > 100) return false;
+    if (typeof product.category !== "string" || !product.category.trim() || product.category.length > 80) return false;
+    try {
+      const url = new URL(product.affiliateUrl);
+      if (url.protocol !== "https:" || url.username || url.password || url.port) return false;
+      if (!["awin1.com", "www.awin1.com", "awin.com", "www.awin.com"].includes(url.hostname.toLowerCase())) return false;
+    } catch (_) { return false; }
+    if (product.imageUrl) {
+      try {
+        const image = new URL(product.imageUrl);
+        if (image.protocol !== "https:" || image.username || image.password) return false;
+      } catch (_) { return false; }
+    }
+    return true;
+  };
+  const initPartnerCatalogue = async () => {
+    const section = document.querySelector("#partner-products-section");
+    const grid = document.querySelector("#partner-products-grid");
+    const status = document.querySelector("#partner-products-status");
+    if (!section || !grid || !status) return;
+    try {
+      const response = await fetch("/assets/affiliate-products.json", {
+        headers: { "accept": "application/json" },
+        credentials: "omit",
+        cache: "no-cache"
+      });
+      if (!response.ok) throw new Error("Catalogue unavailable");
+      const catalogue = await response.json();
+      if (!catalogue || catalogue.schemaVersion !== 1 || !Array.isArray(catalogue.products)) throw new Error("Invalid catalogue");
+      const seen = new Set();
+      const products = catalogue.products.filter(product => {
+        if (!validAffiliateProduct(product) || seen.has(product.id)) return false;
+        seen.add(product.id);
+        return true;
+      });
+      if (!products.length) {
+        section.hidden = true;
+        return;
+      }
+      products.filter(product => product.market === current).forEach(product => {
+        const card = document.createElement("article");
+        card.className = "trend-card";
+        if (product.imageUrl) {
+          const art = document.createElement("div");
+          art.className = "trend-art product-photo";
+          const img = document.createElement("img");
+          img.src = product.imageUrl;
+          img.alt = "";
+          img.loading = "lazy";
+          img.referrerPolicy = "no-referrer";
+          art.append(img);
+          card.append(art);
+        } else {
+          const art = document.createElement("div");
+          art.className = "trend-art";
+          art.setAttribute("aria-hidden", "true");
+          art.textContent = "↗";
+          card.append(art);
+        }
+        const content = document.createElement("div");
+        content.className = "trend-content";
+        const tag = document.createElement("span");
+        tag.className = "tag";
+        tag.textContent = product.category;
+        const title = document.createElement("h3");
+        title.textContent = product.title;
+        const retailer = document.createElement("p");
+        retailer.textContent = "Retailer: " + product.retailer;
+        const link = document.createElement("a");
+        link.className = "button";
+        link.href = product.affiliateUrl;
+        link.target = "_blank";
+        link.rel = "sponsored nofollow noopener";
+        link.textContent = "View deal ↗";
+        content.append(tag, title, retailer, link);
+        card.append(content);
+        grid.append(card);
+      });
+      const visible = grid.childElementCount;
+      if (visible) {
+        section.hidden = false;
+        status.textContent = visible + " approved partner offer(s) for " + marketplaces[current].label + ". Check the retailer page for current price and availability.";
+      } else {
+        section.hidden = true;
+      }
+    } catch (_) {
+      // A failed optional partner feed must not break the Amazon catalogue or the rest of the site.
+      section.hidden = true;
+    }
+  };
   const initGuideFinder = () => {
     const search = document.querySelector("[data-guide-search]");
     const filter = document.querySelector("[data-guide-filter]");
@@ -275,6 +371,7 @@
     });
     initGuideFinder();
     initLiveProductFinder();
+    initPartnerCatalogue();
     applyMarket(current);
   });
 })();
