@@ -9,7 +9,15 @@ const CATEGORIES = {
   drawers: "under desk drawer organizer",
   door: "over door storage organizer",
   shelves: "narrow freestanding storage shelf",
-  bins: "stackable storage bins with lids"
+  bins: "stackable storage bins with lids",
+  charging: "USB C fast charger GaN charger",
+  power: "portable power bank USB C",
+  audio: "wireless earbuds bluetooth speaker",
+  "smart-home": "smart home plugs bulbs sensors Matter",
+  "desk-tech": "USB C hub laptop stand desk lamp",
+  "computer-accessories": "wireless keyboard mouse webcam USB C hub",
+  wearables: "fitness tracker smartwatch accessories",
+  streaming: "streaming stick webcam microphone accessories"
 };
 // Best-effort isolate-local caches reduce duplicate Amazon requests. They are not a global rate limiter.
 let tokenCache = { key: "", accessToken: "", expiresAt: 0 };
