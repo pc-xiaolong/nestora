@@ -52,6 +52,7 @@
   };
   let current = readMarket();
   let productFinderRequestId = 0;
+  let partnerCatalogue = [];
   let productFinderAbortController = null;
   const buildUrl = (query, market = current) => {
     const m = marketplaces[market] || marketplaces.uk;
@@ -124,6 +125,7 @@
     document.querySelectorAll("[data-amazon-query]").forEach(el => setAmazonLink(el, el.getAttribute("data-amazon-query")));
     document.querySelectorAll("[data-market-label]").forEach(el => { el.textContent = marketplaces[current].label; });
     renderTrending();
+    renderPartnerCatalogue();
   };
   const initLiveProductFinder = () => {
     const button = document.querySelector("#find-products");
@@ -243,11 +245,60 @@
     }
     return true;
   };
-  const initPartnerCatalogue = async () => {
+  const renderPartnerCatalogue = () => {
     const section = document.querySelector("#partner-products-section");
     const grid = document.querySelector("#partner-products-grid");
     const status = document.querySelector("#partner-products-status");
     if (!section || !grid || !status) return;
+    grid.replaceChildren();
+    const products = partnerCatalogue.filter(product => product.market === current);
+    products.forEach(product => {
+      const card = document.createElement("article");
+      card.className = "trend-card";
+      if (product.imageUrl) {
+        const art = document.createElement("div");
+        art.className = "trend-art product-photo";
+        const img = document.createElement("img");
+        img.src = product.imageUrl;
+        img.alt = "";
+        img.loading = "lazy";
+        img.referrerPolicy = "no-referrer";
+        art.append(img);
+        card.append(art);
+      } else {
+        const art = document.createElement("div");
+        art.className = "trend-art";
+        art.setAttribute("aria-hidden", "true");
+        art.textContent = "↗";
+        card.append(art);
+      }
+      const content = document.createElement("div");
+      content.className = "trend-content";
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = product.category;
+      const title = document.createElement("h3");
+      title.textContent = product.title;
+      const retailer = document.createElement("p");
+      retailer.textContent = "Retailer: " + product.retailer;
+      const link = document.createElement("a");
+      link.className = "button";
+      link.href = product.affiliateUrl;
+      link.target = "_blank";
+      link.rel = "sponsored nofollow noopener";
+      link.textContent = "View deal ↗";
+      content.append(tag, title, retailer, link);
+      card.append(content);
+      grid.append(card);
+    });
+    if (grid.childElementCount) {
+      section.hidden = false;
+      status.textContent = grid.childElementCount + " approved partner offer(s) for " + marketplaces[current].label + ". Check the retailer page for current price and availability.";
+    } else {
+      section.hidden = true;
+    }
+  };
+  const initPartnerCatalogue = async () => {
     try {
       const response = await fetch("/assets/affiliate-products.json", {
         headers: { "accept": "application/json" },
@@ -258,64 +309,16 @@
       const catalogue = await response.json();
       if (!catalogue || catalogue.schemaVersion !== 1 || !Array.isArray(catalogue.products)) throw new Error("Invalid catalogue");
       const seen = new Set();
-      const products = catalogue.products.filter(product => {
+      partnerCatalogue = catalogue.products.filter(product => {
         if (!validAffiliateProduct(product) || seen.has(product.id)) return false;
         seen.add(product.id);
         return true;
       });
-      if (!products.length) {
-        section.hidden = true;
-        return;
-      }
-      products.filter(product => product.market === current).forEach(product => {
-        const card = document.createElement("article");
-        card.className = "trend-card";
-        if (product.imageUrl) {
-          const art = document.createElement("div");
-          art.className = "trend-art product-photo";
-          const img = document.createElement("img");
-          img.src = product.imageUrl;
-          img.alt = "";
-          img.loading = "lazy";
-          img.referrerPolicy = "no-referrer";
-          art.append(img);
-          card.append(art);
-        } else {
-          const art = document.createElement("div");
-          art.className = "trend-art";
-          art.setAttribute("aria-hidden", "true");
-          art.textContent = "↗";
-          card.append(art);
-        }
-        const content = document.createElement("div");
-        content.className = "trend-content";
-        const tag = document.createElement("span");
-        tag.className = "tag";
-        tag.textContent = product.category;
-        const title = document.createElement("h3");
-        title.textContent = product.title;
-        const retailer = document.createElement("p");
-        retailer.textContent = "Retailer: " + product.retailer;
-        const link = document.createElement("a");
-        link.className = "button";
-        link.href = product.affiliateUrl;
-        link.target = "_blank";
-        link.rel = "sponsored nofollow noopener";
-        link.textContent = "View deal ↗";
-        content.append(tag, title, retailer, link);
-        card.append(content);
-        grid.append(card);
-      });
-      const visible = grid.childElementCount;
-      if (visible) {
-        section.hidden = false;
-        status.textContent = visible + " approved partner offer(s) for " + marketplaces[current].label + ". Check the retailer page for current price and availability.";
-      } else {
-        section.hidden = true;
-      }
+      renderPartnerCatalogue();
     } catch (_) {
       // A failed optional partner feed must not break the Amazon catalogue or the rest of the site.
-      section.hidden = true;
+      partnerCatalogue = [];
+      renderPartnerCatalogue();
     }
   };
   const initGuideFinder = () => {
