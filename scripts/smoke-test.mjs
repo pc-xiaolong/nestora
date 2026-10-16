@@ -13,7 +13,7 @@ assert.ok(config.compatibility_date, "Pages Functions compatibility date must be
 assert.ok(existsSync(join(root, "functions/api/products.js")), "Product Pages Function must exist");
 assert.ok(existsSync(join(root, "404.html")), "Custom 404 page must exist");
 const securityHeaders = read("_headers");
-for (const header of ["X-Content-Type-Options: nosniff", "X-Frame-Options: DENY", "Referrer-Policy:", "Content-Security-Policy:"]) {
+for (const header of ["X-Content-Type-Options: nosniff", "X-Frame-Options: DENY", "Referrer-Policy:", "Content-Security-Policy:", "Cross-Origin-Opener-Policy: same-origin", "X-Permitted-Cross-Domain-Policies: none"]) {
   assert.ok(securityHeaders.includes(header), `Security header must be configured: ${header}`);
 }
 assert.ok(!existsSync(join(root, "worker.js")), "Do not ship a standalone Worker entrypoint in the Pages asset root");
