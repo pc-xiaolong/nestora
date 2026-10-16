@@ -254,3 +254,24 @@ test("maps Amazon OAuth 5xx responses to retryable service-unavailable responses
     globalThis.fetch = originalFetch;
   }
 });
+
+test("maps upstream network failures to retryable service-unavailable responses", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async input => {
+    if (String(input).includes("/auth/o2/token")) {
+      return new Response(JSON.stringify({ access_token: "network-test-token", expires_in: 3600 }), { status: 200 });
+    }
+    throw new TypeError("simulated upstream network failure");
+  };
+  try {
+    const response = await onRequestGet({
+      request: makeRequest("?market=uk&category=audio"),
+      env: { CREATORS_API_CLIENT_ID: "unit-test-network-failure", CREATORS_API_CLIENT_SECRET: "test-only-secret", CREATORS_API_VERSION: "3.1" }
+    });
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get("retry-after"), "30");
+    assert.match((await response.json()).error, /could not reach the upstream service/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
