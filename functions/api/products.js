@@ -80,6 +80,7 @@ async function getToken(env, version, credentialKey) {
   }
   const response = await fetch(endpoint, { method: "POST", headers, body, signal: AbortSignal.timeout(8000) });
   if (response.status === 429) throw new Error("AMAZON_UPSTREAM_RATE_LIMITED");
+  if (response.status >= 500) throw new Error("AMAZON_UPSTREAM_UNAVAILABLE");
   if (!response.ok) throw new Error("Amazon token request failed with status " + response.status);
   const data = await response.json();
   if (!data.access_token) throw new Error("Amazon token response did not include an access token");
@@ -144,6 +145,9 @@ export async function onRequestGet({ request, env }) {
       if (response.status === 429) {
         return json({ error: "Amazon product search is temporarily rate limited. Please wait briefly and retry." }, 503, { "retry-after": "30" });
       }
+      if (response.status >= 500) {
+        return json({ error: "Amazon product search is temporarily unavailable. Please retry after a short delay." }, 503, { "retry-after": "30" });
+      }
       return json({ error: "Amazon Creators API returned status " + response.status + ". Check access, credential version, and marketplace approval." }, 502);
     }
     const data = await response.json();
@@ -179,6 +183,9 @@ export async function onRequestGet({ request, env }) {
   } catch (error) {
     if (error && error.message === "AMAZON_UPSTREAM_RATE_LIMITED") {
       return json({ error: "Amazon authentication is temporarily rate limited. Please wait briefly and retry." }, 503, { "retry-after": "30" });
+    }
+    if (error && error.message === "AMAZON_UPSTREAM_UNAVAILABLE") {
+      return json({ error: "Amazon authentication is temporarily unavailable. Please retry after a short delay." }, 503, { "retry-after": "30" });
     }
     return json({ error: "Product lookup failed. Verify Creators API configuration in Cloudflare." }, 502);
   }
