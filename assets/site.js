@@ -426,6 +426,14 @@
     document.querySelectorAll("[data-amazon-query]").forEach(el => {
       el.addEventListener("click", () => setAmazonLink(el, el.getAttribute("data-amazon-query")));
     });
+    const heroSearchForm = document.querySelector("#hero-search-form");
+    if (heroSearchForm) heroSearchForm.addEventListener("submit", event => {
+      event.preventDefault();
+      const field = heroSearchForm.querySelector('input[name="q"]');
+      const query = field ? field.value.trim() : "";
+      if (!query) return;
+      window.open(buildUrl(query, current), "_blank", "noopener,noreferrer");
+    });
     const toggle = document.querySelector("[data-nav-toggle]");
     const nav = document.querySelector("[data-nav]");
     if (toggle && nav) toggle.addEventListener("click", () => {
