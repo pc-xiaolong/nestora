@@ -23,6 +23,9 @@ assert.equal(routes.version, 1, "Pages Functions route schema version must be 1"
 assert.ok(routes.include.includes("/api/*"), "Pages Functions must be invoked for API routes");
 assert.deepEqual(routes.exclude, [], "No API route exclusions should shadow the product endpoint");
 
+const styles = read("assets/styles.css");
+assert.ok(styles.includes(":focus-visible"), "Interactive controls must have visible keyboard focus styling");
+assert.ok(styles.includes("prefers-reduced-motion: reduce"), "Animations must respect reduced-motion preferences");
 const js = read("assets/site.js");
 const api = read("functions/api/products.js");
 assert.ok(!js.includes("CREATORS_API_CLIENT_SECRET"), "Amazon client secrets must never be included in browser JavaScript");
