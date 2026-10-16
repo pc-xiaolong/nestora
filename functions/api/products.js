@@ -142,6 +142,13 @@ export async function onRequestGet({ request, env }) {
       })
     });
     if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        // Do not reuse a token Amazon has rejected. The next request will obtain a fresh token.
+        if (tokenCache.key === credentialKey) {
+          tokenCache = { key: "", accessToken: "", expiresAt: 0 };
+        }
+        return json({ error: "Amazon rejected the product request. Verify Creators API access and marketplace approval; credentials will be refreshed on the next request." }, 502);
+      }
       if (response.status === 429) {
         return json({ error: "Amazon product search is temporarily rate limited. Please wait briefly and retry." }, 503, { "retry-after": "30" });
       }
