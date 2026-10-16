@@ -344,3 +344,55 @@ test("invalidates a cached Amazon token after catalog authorization is rejected"
     globalThis.fetch = originalFetch;
   }
 });
+
+test("bounds Amazon catalog authorization recovery to one retry", async () => {
+  const originalFetch = globalThis.fetch;
+  let tokenCalls = 0;
+  let catalogCalls = 0;
+  globalThis.fetch = async input => {
+    if (String(input).includes("/auth/o2/token")) {
+      tokenCalls++;
+      return new Response(JSON.stringify({ access_token: "persistently-rejected-" + tokenCalls, expires_in: 3600 }), { status: 200 });
+    }
+    catalogCalls++;
+    return new Response(JSON.stringify({ message: "unauthorized" }), { status: 401 });
+  };
+  try {
+    const response = await onRequestGet({
+      request: makeRequest("?market=us&category=audio"),
+      env: { CREATORS_API_CLIENT_ID: "unit-test-persistent-401", CREATORS_API_CLIENT_SECRET: "test-only-secret", CREATORS_API_VERSION: "3.1" }
+    });
+    assert.equal(response.status, 502);
+    assert.match((await response.json()).error, /Amazon rejected the product request/i);
+    assert.equal(tokenCalls, 2, "only one fresh-token request is permitted");
+    assert.equal(catalogCalls, 2, "catalogue request must not retry indefinitely");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("does not retry Amazon catalog 403 permission failures", async () => {
+  const originalFetch = globalThis.fetch;
+  let tokenCalls = 0;
+  let catalogCalls = 0;
+  globalThis.fetch = async input => {
+    if (String(input).includes("/auth/o2/token")) {
+      tokenCalls++;
+      return new Response(JSON.stringify({ access_token: "permission-test-token", expires_in: 3600 }), { status: 200 });
+    }
+    catalogCalls++;
+    return new Response(JSON.stringify({ message: "marketplace access denied" }), { status: 403 });
+  };
+  try {
+    const response = await onRequestGet({
+      request: makeRequest("?market=uk&category=audio"),
+      env: { CREATORS_API_CLIENT_ID: "unit-test-catalog-403", CREATORS_API_CLIENT_SECRET: "test-only-secret", CREATORS_API_VERSION: "3.1" }
+    });
+    assert.equal(response.status, 502);
+    assert.match((await response.json()).error, /Amazon rejected the product request/i);
+    assert.equal(tokenCalls, 1, "403 is treated as an access/permission issue, not an expired token");
+    assert.equal(catalogCalls, 1, "permission failures should not cause duplicate upstream calls");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
