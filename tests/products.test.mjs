@@ -42,7 +42,7 @@ test("returns only valid product URLs and allowlisted image hosts", async () => 
       searchResult: { items: [
         {
           asin: "B012345678",
-          detailPageURL: "https://www.amazon.co.uk/dp/B012345678?tag=wrong-21",
+          detailPageURL: "https://www.amazon.co.uk/dp/B012345678?tag=trivenico-21",
           itemInfo: { title: { displayValue: "Cable organiser" } },
           images: { primary: { medium: { url: "https://m.media-amazon.com/images/I/test.jpg" } } }
         },
@@ -73,7 +73,7 @@ test("returns only valid product URLs and allowlisted image hosts", async () => 
     const data = await response.json();
     assert.equal(data.items.length, 1);
     assert.equal(data.items[0].title, "Cable organiser");
-    assert.equal(new URL(data.items[0].url).searchParams.get("tag"), "trivenico-21");
+    assert.equal(data.items[0].url, "https://www.amazon.co.uk/dp/B012345678?tag=trivenico-21", "preserve the exact Amazon-vended URL");
     assert.equal(new URL(data.items[0].image).hostname, "m.media-amazon.com");
     assert.equal(calls.length, 2, "one token request and one catalog request");
   } finally {
@@ -97,7 +97,7 @@ test("credential rotation invalidates cached OAuth tokens and product results", 
     return new Response(JSON.stringify({
       searchResult: { items: [{
         asin: "B012345681",
-        detailPageURL: "https://www.amazon.co.uk/dp/B012345681",
+        detailPageURL: "https://www.amazon.co.uk/dp/B012345681?tag=trivenico-21",
         itemInfo: { title: { displayValue: "Rotated credential product " + token } },
         images: { primary: { medium: { url: "https://m.media-amazon.com/images/I/rotation.jpg" } } }
       }] }
@@ -123,6 +123,32 @@ test("credential rotation invalidates cached OAuth tokens and product results", 
   }
 });
 
+test("rejects vended links with a mismatched Partner tag instead of rewriting them", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async input => {
+    if (String(input).includes("/auth/o2/token")) {
+      return new Response(JSON.stringify({ access_token: "tag-validation-token", expires_in: 3600 }), { status: 200 });
+    }
+    return new Response(JSON.stringify({
+      searchResult: { items: [{
+        asin: "B012345682",
+        detailPageURL: "https://www.amazon.co.uk/dp/B012345682?tag=wrong-21",
+        itemInfo: { title: { displayValue: "Wrong tag must not be rewritten" } },
+        images: { primary: { medium: { url: "https://m.media-amazon.com/images/I/tag.jpg" } } }
+      }] }
+    }), { status: 200 });
+  };
+  try {
+    const response = await onRequestGet({
+      request: makeRequest("?market=uk&category=door"),
+      env: { CREATORS_API_CLIENT_ID: "unit-test-wrong-tag", CREATORS_API_CLIENT_SECRET: "test-only-secret", CREATORS_API_VERSION: "3.1" }
+    });
+    assert.equal(response.status, 200);
+    assert.deepEqual((await response.json()).items, []);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
 test("handles Amazon upstream rate limits with a controlled retryable response", async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async input => {
