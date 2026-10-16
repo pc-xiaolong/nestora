@@ -141,7 +141,7 @@ export async function onRequestGet({ request, env }) {
     });
     if (!response.ok) {
       if (response.status === 429) {
-        return json({ error: "Amazon product search is temporarily rate limited. Please wait briefly and retry." }, 503);
+        return json({ error: "Amazon product search is temporarily rate limited. Please wait briefly and retry." }, 503, { "retry-after": "30" });
       }
       return json({ error: "Amazon Creators API returned status " + response.status + ". Check access, credential version, and marketplace approval." }, 502);
     }
