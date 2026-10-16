@@ -52,6 +52,7 @@
   };
   let current = readMarket();
   let productFinderRequestId = 0;
+  let productFinderAbortController = null;
   const buildUrl = (query, market = current) => {
     const m = marketplaces[market] || marketplaces.uk;
     return "https://" + m.host + "/s?k=" + encodeURIComponent(query) + "&tag=" + encodeURIComponent(m.tag);
@@ -103,6 +104,11 @@
     if (!marketplaces[market]) return;
     current = market;
     productFinderRequestId++;
+    // Cancel an in-flight lookup when the marketplace changes so it cannot waste upstream work.
+    if (productFinderAbortController) {
+      productFinderAbortController.abort();
+      productFinderAbortController = null;
+    }
     try { localStorage.setItem(key, market); } catch (_) {}
     // Never leave results from a previous marketplace visible after the user switches stores.
     const liveGrid = document.querySelector("#live-products-grid");
@@ -161,11 +167,14 @@
       button.textContent = "Searching…";
       status.textContent = "Requesting current product details from Amazon…";
       grid.replaceChildren();
+      const controller = new AbortController();
+      productFinderAbortController = controller;
       try {
         const response = await fetch("/api/products?market=" + encodeURIComponent(current) + "&category=" + encodeURIComponent(category.value), {
           method: "GET",
           headers: { "accept": "application/json" },
-          credentials: "omit"
+          credentials: "omit",
+          signal: controller.signal
         });
         const data = await response.json();
         if (requestId !== productFinderRequestId) return;
@@ -184,10 +193,11 @@
         renderItems(data.items);
         status.textContent = data.items.length + " current product listing(s) returned by Amazon for the " + marketplaces[current].label + " marketplace. Check the retailer page for availability and terms.";
       } catch (_) {
-        if (requestId === productFinderRequestId) {
+        if (requestId === productFinderRequestId && !controller.signal.aborted) {
           status.textContent = "Could not reach the product service. Check the deployment and try again; tagged marketplace searches remain available below.";
         }
       } finally {
+        if (productFinderAbortController === controller) productFinderAbortController = null;
         if (requestId === productFinderRequestId) {
           button.disabled = false;
           button.textContent = "Find live products ↗";
