@@ -118,7 +118,8 @@ export async function onRequestGet({ request, env }) {
   const cacheKey = credentialKey + ":" + marketKey + ":" + category;
   const cached = productCache.get(cacheKey);
   if (cached && Date.now() < cached.expiresAt) {
-    return json(cached.data);
+    // Keep cache semantics identical whether the result comes from the isolate cache or Amazon.
+    return json(cached.data, 200, { "cache-control": "public, max-age=60, s-maxage=300, stale-while-revalidate=60" });
   }
   if (cached) productCache.delete(cacheKey);
 
