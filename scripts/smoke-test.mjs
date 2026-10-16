@@ -76,6 +76,7 @@ assert.ok(read("shop/index.html").includes('id="trend-grid"'), "Shop must contai
 assert.ok(!read("shop/index.html").includes('id="amazon-picks-grid"'), "Do not present unverified search candidates as individual product cards");
 assert.ok(read("shop/index.html").includes("Individual product images are shown only when supplied through an approved retailer source."), "Shop must explain that exact product images require an approved retailer source");
 assert.ok(read("shop/index.html").includes('class="notice affiliate-notice"'), "Shop must show affiliate disclosure near product recommendations");
+assert.ok(read("scripts/production-smoke.mjs").includes('"affiliate-notice"'), "Production smoke monitor must match the shop disclosure class token rather than an exact class attribute");
 assert.ok(read("shop/index.html").includes('href="/disclosure.html"'), "Shop affiliate disclosure must link to the full disclosure page");
 
 const affiliateCatalogue = JSON.parse(read("assets/affiliate-products.json"));
