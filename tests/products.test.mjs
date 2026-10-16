@@ -334,11 +334,12 @@ test("invalidates a cached Amazon token after catalog authorization is rejected"
       CREATORS_API_VERSION: "3.1"
     };
     const first = await onRequestGet({ request: makeRequest("?market=uk&category=audio"), env });
-    assert.equal(first.status, 502);
-    assert.match((await first.json()).error, /Amazon rejected the product request/i);
+    assert.equal(first.status, 200, "a single rejected token should be refreshed and retried transparently");
+    assert.equal(catalogCalls, 2, "catalogue request should be retried exactly once");
+    assert.equal(tokenCalls, 2, "retry must fetch a new token");
     const second = await onRequestGet({ request: makeRequest("?market=uk&category=audio"), env });
     assert.equal(second.status, 200);
-    assert.equal(tokenCalls, 2, "second request must fetch a new token");
+    assert.equal(tokenCalls, 2, "successful retry should leave the refreshed token cached");
   } finally {
     globalThis.fetch = originalFetch;
   }
