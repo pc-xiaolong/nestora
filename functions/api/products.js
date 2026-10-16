@@ -71,12 +71,17 @@ export async function onRequestGet({ request, env }) {
       let safeUrl = "";
       try {
         const parsed = new URL(productUrl);
-        if (parsed.protocol === "https:" && parsed.hostname === market.host) safeUrl = parsed.href;
+        if (parsed.protocol === "https:" && parsed.hostname === market.host) {
+          parsed.searchParams.set("tag", market.tag);
+          safeUrl = parsed.href;
+        }
       } catch (_) {}
       return {
         asin: item.asin || "",
         title: item.itemInfo?.title?.displayValue || "",
-        image: item.images?.primary?.medium?.url || item.images?.primary?.large?.url || "",
+        image: [item.images?.primary?.medium?.url, item.images?.primary?.large?.url].find(value => {
+          try { return new URL(value).protocol === "https:"; } catch (_) { return false; }
+        }) || "",
         url: safeUrl
       };
     }).filter(item => item.title && item.url && item.image);
