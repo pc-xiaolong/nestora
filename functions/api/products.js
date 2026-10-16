@@ -74,7 +74,7 @@ export async function onRequestGet({ request, env }) {
     return json({ error: "Unsupported Creators API credential version. Configure the exact version issued by Amazon." }, 500);
   }
   // Include the credential version in cache identity to avoid serving data cached under prior configuration.
-  const cacheKey = version + ":" + marketKey + ":" + category;
+  const cacheKey = version + ":" + env.CREATORS_API_CLIENT_ID + ":" + marketKey + ":" + category;
   const cached = productCache.get(cacheKey);
   if (cached && Date.now() < cached.expiresAt) {
     return json(cached.data);
