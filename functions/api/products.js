@@ -63,11 +63,16 @@ export async function onRequestGet({ request, env }) {
   const market = MARKETS[marketKey];
   const keywords = CATEGORIES[category];
   if (!market || !keywords) return json({ error: "Unsupported marketplace or category." }, 400);
-  if (!env.CREATORS_API_CLIENT_ID || !env.CREATORS_API_CLIENT_SECRET) {
-    return json({ configured: false, error: "Live Amazon product images require approved Creators API credentials configured as Cloudflare secrets." }, 503);
+  if (!env.CREATORS_API_CLIENT_ID || !env.CREATORS_API_CLIENT_SECRET || !env.CREATORS_API_VERSION) {
+    return json({
+      configured: false,
+      error: "Live Amazon product lookup requires approved Creators API credentials and the exact credential version configured as Cloudflare secrets."
+    }, 503);
   }
-  const version = env.CREATORS_API_VERSION || "3.2";
-  if (!["3.1","3.2","3.3"].includes(version)) return json({ error: "Unsupported Creators API credential version. Use the version issued for your credentials (3.1, 3.2, or 3.3)." }, 500);
+  const version = String(env.CREATORS_API_VERSION).trim();
+  if (!["3.1","3.2","3.3"].includes(version)) {
+    return json({ error: "Unsupported Creators API credential version. Configure the exact 3.1, 3.2, or 3.3 version issued by Amazon." }, 500);
+  }
   const cacheKey = marketKey + ":" + category;
   const cached = productCache.get(cacheKey);
   if (cached && Date.now() < cached.expiresAt) {
