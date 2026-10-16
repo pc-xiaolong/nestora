@@ -195,7 +195,24 @@ test("handles Amazon upstream rate limits with a controlled retryable response",
     });
     assert.equal(response.status, 503);
     assert.match((await response.json()).error, /rate limited/i);
+    assert.equal(response.headers.get("retry-after"), "30");
     assert.equal(response.headers.get("cache-control"), "no-store");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("handles Amazon OAuth rate limits with a controlled retryable response", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({ error: "too_many_requests" }), { status: 429 });
+  try {
+    const response = await onRequestGet({
+      request: makeRequest("?market=uk&category=audio"),
+      env: { CREATORS_API_CLIENT_ID: "unit-test-oauth-rate-limit", CREATORS_API_CLIENT_SECRET: "test-only-secret", CREATORS_API_VERSION: "3.1" }
+    });
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get("retry-after"), "30");
+    assert.match((await response.json()).error, /authentication.*rate limited/i);
   } finally {
     globalThis.fetch = originalFetch;
   }
