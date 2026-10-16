@@ -7,15 +7,17 @@ const root = normalize(join(dirname(fileURLToPath(import.meta.url)), ".."));
 const read = path => readFileSync(join(root, path), "utf8");
 const config = JSON.parse(read("wrangler.jsonc"));
 
-assert.equal(config.name, "nestora", "Worker name must remain nestora");
-assert.equal(config.main, "./worker.js", "Worker entrypoint must be configured");
-assert.equal(config.assets?.directory, "./", "Static assets must be served from repository root");
-assert.equal(config.assets?.binding, "ASSETS", "Worker must have an ASSETS binding");
-assert.equal(config.assets?.not_found_handling, "404-page", "Unknown paths must return a real 404");
-assert.ok(config.assets?.run_worker_first?.includes("/api/*"), "API routes must execute before static asset fallback");
-assert.ok(existsSync(join(root, config.main)), "Configured Worker entrypoint must exist");
-assert.ok(existsSync(join(root, "functions/api/products.js")), "Product API handler must exist");
+assert.equal(config.name, "nesstora", "Pages project name must match the production project");
+assert.equal(config.pages_build_output_dir, ".", "Pages must publish the repository root");
+assert.ok(config.compatibility_date, "Pages Functions compatibility date must be set");
+assert.ok(existsSync(join(root, "functions/api/products.js")), "Product Pages Function must exist");
 assert.ok(existsSync(join(root, "404.html")), "Custom 404 page must exist");
+assert.ok(!existsSync(join(root, "worker.js")), "Do not ship a standalone Worker entrypoint in the Pages asset root");
+
+const routes = JSON.parse(read("_routes.json"));
+assert.equal(routes.version, 1, "Pages Functions route schema version must be 1");
+assert.ok(routes.include.includes("/api/*"), "Pages Functions must be invoked for API routes");
+assert.deepEqual(routes.exclude, [], "No API route exclusions should shadow the product endpoint");
 
 const js = read("assets/site.js");
 const api = read("functions/api/products.js");
