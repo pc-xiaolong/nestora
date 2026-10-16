@@ -312,3 +312,34 @@ test("maps Amazon catalog timeouts to retryable service-unavailable responses", 
     globalThis.fetch = originalFetch;
   }
 });
+
+test("invalidates a cached Amazon token after catalog authorization is rejected", async () => {
+  const originalFetch = globalThis.fetch;
+  let tokenCalls = 0;
+  let catalogCalls = 0;
+  globalThis.fetch = async input => {
+    const url = String(input);
+    if (url.includes("/auth/o2/token")) {
+      tokenCalls++;
+      return new Response(JSON.stringify({ access_token: "auth-rejected-token-" + tokenCalls, expires_in: 3600 }), { status: 200 });
+    }
+    catalogCalls++;
+    if (catalogCalls === 1) return new Response(JSON.stringify({ message: "expired token" }), { status: 401 });
+    return new Response(JSON.stringify({ searchResult: { items: [] } }), { status: 200 });
+  };
+  try {
+    const env = {
+      CREATORS_API_CLIENT_ID: "unit-test-auth-rejected",
+      CREATORS_API_CLIENT_SECRET: "test-only-secret",
+      CREATORS_API_VERSION: "3.1"
+    };
+    const first = await onRequestGet({ request: makeRequest("?market=uk&category=audio"), env });
+    assert.equal(first.status, 502);
+    assert.match((await first.json()).error, /Amazon rejected the product request/i);
+    const second = await onRequestGet({ request: makeRequest("?market=uk&category=audio"), env });
+    assert.equal(second.status, 200);
+    assert.equal(tokenCalls, 2, "second request must fetch a new token");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
