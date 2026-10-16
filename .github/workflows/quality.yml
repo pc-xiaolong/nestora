@@ -1,4 +1,4 @@
-name: Nestora quality gate
+name: Nesstora quality gate
 
 on:
   push:
