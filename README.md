@@ -1,8 +1,8 @@
-# Nestora
+# Nesstora
 
 **Make Every Space Work Smarter.**
 
-Nestora is a static multi-page affiliate-content website focused on practical small-space organisation, technology gadgets, charging accessories, computer peripherals, smart-home products, and home-office guides. Its optional product finder uses Cloudflare Pages Functions to call Amazon's Creators API server-side. Marketplace and category changes cancel stale in-flight searches so the interface does not display results for a previous selection.
+Nesstora is a static multi-page affiliate-content website focused on practical small-space organisation, technology gadgets, charging accessories, computer peripherals, smart-home products, and home-office guides. Its optional product finder uses Cloudflare Pages Functions to call Amazon's Creators API server-side. Marketplace and category changes cancel stale in-flight searches so the interface does not display results for a previous selection.
 
 ## Production architecture
 
@@ -40,7 +40,7 @@ Only set the version Amazon actually issued. An accepted Associates account and 
 
 ## Multi-network affiliate catalogue (Awin-ready)
 
-`assets/affiliate-products.json` is the versioned catalogue for approved non-Amazon partner offers. It intentionally starts empty: Awin advertiser approval and real tracking URLs are not available yet, so Nestora must not fabricate links or publish unverified offers.
+`assets/affiliate-products.json` is the versioned catalogue for approved non-Amazon partner offers. It intentionally starts empty: Awin advertiser approval and real tracking URLs are not available yet, so Nesstora must not fabricate links or publish unverified offers.
 
 Each active product must use this shape:
 
