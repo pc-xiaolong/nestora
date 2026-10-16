@@ -11,8 +11,16 @@ const CATEGORIES = {
   shelves: "narrow freestanding storage shelf",
   bins: "stackable storage bins with lids"
 };
-// Best-effort isolate-local token reuse prevents requesting a new OAuth token on every search.
+// Best-effort isolate-local caches reduce duplicate Amazon requests. They are not a global rate limiter.
 let tokenCache = { key: "", accessToken: "", expiresAt: 0 };
+const productCache = new Map();
+const PRODUCT_CACHE_TTL_MS = 5 * 60 * 1000;
+const IMAGE_HOSTS = new Set([
+  "m.media-amazon.com",
+  "images-na.ssl-images-amazon.com",
+  "images-eu.ssl-images-amazon.com",
+  "images-fe.ssl-images-amazon.com"
+]);
 
 const json = (data, status = 200) => new Response(JSON.stringify(data), {
   status,
@@ -35,7 +43,7 @@ async function getToken(env, version) {
     form.set("scope", "creatorsapi/default");
     body = form.toString();
   }
-  const response = await fetch(endpoint, { method: "POST", headers, body });
+  const response = await fetch(endpoint, { method: "POST", headers, body, signal: AbortSignal.timeout(8000) });
   if (!response.ok) throw new Error("Amazon token request failed with status " + response.status);
   const data = await response.json();
   if (!data.access_token) throw new Error("Amazon token response did not include an access token");
@@ -59,17 +67,25 @@ export async function onRequestGet({ request, env }) {
     return json({ configured: false, error: "Live Amazon product images require approved Creators API credentials configured as Cloudflare secrets." }, 503);
   }
   const version = env.CREATORS_API_VERSION || "3.2";
-  if (!["2.1","2.2","2.3","3.1","3.2","3.3"].includes(version)) return json({ error: "Invalid Creators API credential version." }, 500);
+  if (!["3.1","3.2","3.3"].includes(version)) return json({ error: "Unsupported Creators API credential version. Use the version issued for your credentials (3.1, 3.2, or 3.3)." }, 500);
+  const cacheKey = marketKey + ":" + category;
+  const cached = productCache.get(cacheKey);
+  if (cached && Date.now() < cached.expiresAt) {
+    return json(cached.data);
+  }
+  if (cached) productCache.delete(cacheKey);
+
   try {
     const token = await getToken(env, version);
     const headers = {
       "content-type": "application/json",
       "x-marketplace": market.host,
-      "authorization": version.startsWith("2.") ? "Bearer " + token + ", Version " + version : "Bearer " + token
+      "authorization": "Bearer " + token
     };
     const response = await fetch("https://creatorsapi.amazon/catalog/v1/searchItems", {
       method: "POST",
       headers,
+      signal: AbortSignal.timeout(10000),
       body: JSON.stringify({
         keywords,
         marketplace: market.host,
@@ -85,7 +101,7 @@ export async function onRequestGet({ request, env }) {
       let safeUrl = "";
       try {
         const parsed = new URL(productUrl);
-        if (parsed.protocol === "https:" && parsed.hostname === market.host) {
+        if (parsed.protocol === "https:" && parsed.hostname === market.host && !parsed.username && !parsed.password && !parsed.port) {
           parsed.searchParams.set("tag", market.tag);
           safeUrl = parsed.href;
         }
@@ -94,12 +110,19 @@ export async function onRequestGet({ request, env }) {
         asin: item.asin || "",
         title: item.itemInfo?.title?.displayValue || "",
         image: [item.images?.primary?.medium?.url, item.images?.primary?.large?.url].find(value => {
-          try { return new URL(value).protocol === "https:"; } catch (_) { return false; }
+          try {
+            const imageUrl = new URL(value);
+            return imageUrl.protocol === "https:" && IMAGE_HOSTS.has(imageUrl.hostname) && !imageUrl.username && !imageUrl.password;
+          } catch (_) { return false; }
         }) || "",
         url: safeUrl
       };
     }).filter(item => item.title && item.url && item.image);
-    return json({ configured: true, market: marketKey, category, items });
+    const result = { configured: true, market: marketKey, category, items };
+    // Keep the isolate cache bounded even if more categories are added later.
+    if (productCache.size >= 30) productCache.delete(productCache.keys().next().value);
+    productCache.set(cacheKey, { data: result, expiresAt: Date.now() + PRODUCT_CACHE_TTL_MS });
+    return json(result);
   } catch (error) {
     return json({ error: "Product lookup failed. Verify Creators API configuration in Cloudflare." }, 502);
   }
