@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://nesstora.pages.dev/sitemap.xml
