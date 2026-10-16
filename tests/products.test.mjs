@@ -17,6 +17,18 @@ test("rejects unsupported marketplace and category before contacting Amazon", as
   }
 });
 
+test("accepts all advertised technology gadget categories before credential checks", async () => {
+  const categories = ["charging", "power", "audio", "smart-home", "desk-tech", "computer-accessories", "wearables", "streaming"];
+  for (const category of categories) {
+    const response = await onRequestGet({
+      request: makeRequest("?market=uk&category=" + encodeURIComponent(category)),
+      env: {}
+    });
+    assert.equal(response.status, 503, category + " should be recognized and reach the missing-credentials guard");
+    assert.equal((await response.json()).configured, false);
+  }
+});
+
 test("returns a controlled configuration response when credentials are absent", async () => {
   const response = await onRequestGet({ request: makeRequest("?market=uk&category=cables"), env: {} });
   assert.equal(response.status, 503);
