@@ -29,6 +29,25 @@ test("accepts all advertised technology gadget categories before credential chec
   }
 });
 
+test("rate limits repeated requests from the same Cloudflare client IP", async () => {
+  const ip = "198.51.100.42";
+  for (let i = 0; i < 30; i++) {
+    const request = new Request("https://nestora.test/api/products?market=uk&category=cables", {
+      headers: { "cf-connecting-ip": ip }
+    });
+    const response = await onRequestGet({ request, env: {} });
+    assert.equal(response.status, 503, "requests within the configured window should reach normal configuration handling");
+  }
+  const blocked = await onRequestGet({
+    request: new Request("https://nestora.test/api/products?market=uk&category=cables", {
+      headers: { "cf-connecting-ip": ip }
+    }),
+    env: {}
+  });
+  assert.equal(blocked.status, 429);
+  assert.equal(blocked.headers.get("retry-after"), "60");
+});
+
 test("returns a controlled configuration response when credentials are absent", async () => {
   const response = await onRequestGet({ request: makeRequest("?market=uk&category=cables"), env: {} });
   assert.equal(response.status, 503);
