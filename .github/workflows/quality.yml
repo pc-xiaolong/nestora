@@ -22,8 +22,7 @@ jobs:
           node-version: 22
       - name: Check JavaScript syntax
         run: |
-          node --input-type=module --check < worker.js
           node --input-type=module --check < functions/api/products.js
           node --input-type=module --check < assets/site.js
-      - name: Check repository and internal links
+      - name: Check Pages configuration and internal links
         run: node scripts/smoke-test.mjs
