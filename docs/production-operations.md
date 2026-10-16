@@ -25,7 +25,7 @@
 
 ## Rate limiting limitation
 
-The product function currently has an isolate-local throttle. It is defence in depth only and is not globally consistent across Cloudflare isolates. A Cloudflare WAF rate-limiting rule normally requires a zone-controlled hostname. The Cloudflare project currently lists only `nesstora.pages.dev` and no custom domain. Confirm a supported hostname and zone before attempting to create a zone-level rule; do not assume a Pages deployment URL is a customer-owned zone. Do not claim global rate limiting is enabled until the rule is created and verified against the real hostname.
+The product function has an isolate-local fallback throttle and now supports an optional `PRODUCT_RATE_LIMITER` Cloudflare Rate Limiting binding. When configured, the binding shares counters across isolates within a Cloudflare location, but Cloudflare documents it as permissive/eventually consistent and not globally consistent. The binding is not yet configured in `wrangler.jsonc` or verified in production, so the isolate-local throttle remains the active protection. Before enabling the binding, select a positive integer `namespace_id` unique within the Cloudflare account and configure the `ratelimits` binding using Wrangler 4.36.0 or later. The project currently has no custom domain, so zone-level WAF rules need a suitable custom domain/zone. Do not claim edge binding or WAF protection is active until deployed and tested.
 
 ## Release checklist
 
