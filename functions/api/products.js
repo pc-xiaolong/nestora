@@ -15,6 +15,10 @@ const CATEGORIES = {
 let tokenCache = { key: "", accessToken: "", expiresAt: 0 };
 const productCache = new Map();
 const PRODUCT_CACHE_TTL_MS = 5 * 60 * 1000;
+async function fingerprintSecret(secret) {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret));
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+}
 const IMAGE_HOSTS = new Set([
   "m.media-amazon.com",
   "images-na.ssl-images-amazon.com",
@@ -26,8 +30,8 @@ const json = (data, status = 200, extraHeaders = {}) => new Response(JSON.string
   status,
   headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-content-type-options": "nosniff", ...extraHeaders }
 });
-async function getToken(env, version) {
-  const cacheKey = version + ":" + env.CREATORS_API_CLIENT_ID;
+async function getToken(env, version, credentialKey) {
+  const cacheKey = credentialKey;
   if (tokenCache.key === cacheKey && tokenCache.accessToken && Date.now() < tokenCache.expiresAt) {
     return tokenCache.accessToken;
   }
@@ -73,8 +77,9 @@ export async function onRequestGet({ request, env }) {
   if (!["3.1","3.2","3.3"].includes(version)) {
     return json({ error: "Unsupported Creators API credential version. Configure the exact version issued by Amazon." }, 500);
   }
-  // Include the credential version in cache identity to avoid serving data cached under prior configuration.
-  const cacheKey = version + ":" + env.CREATORS_API_CLIENT_ID + ":" + marketKey + ":" + category;
+  // Fingerprint the secret without storing or logging its raw value. Rotating a secret must invalidate both caches.
+  const credentialKey = version + ":" + env.CREATORS_API_CLIENT_ID + ":" + await fingerprintSecret(env.CREATORS_API_CLIENT_SECRET);
+  const cacheKey = credentialKey + ":" + marketKey + ":" + category;
   const cached = productCache.get(cacheKey);
   if (cached && Date.now() < cached.expiresAt) {
     return json(cached.data);
@@ -82,7 +87,7 @@ export async function onRequestGet({ request, env }) {
   if (cached) productCache.delete(cacheKey);
 
   try {
-    const token = await getToken(env, version);
+    const token = await getToken(env, version, credentialKey);
     const headers = {
       "content-type": "application/json",
       "x-marketplace": market.host,
