@@ -4,7 +4,7 @@
 
 - The GitHub Actions quality gate runs on pushes and pull requests to `main`.
 - The production smoke monitor runs every 30 minutes, can be started manually, and runs after a successful quality-gate workflow on `main`.
-- The monitor checks key HTML routes, required response security headers, sitemap and robots references, and the product API's documented configured/unconfigured response shapes.
+- The monitor checks key HTML routes, required response security headers, sitemap and robots references, and the product API's documented configured/unconfigured response shapes. Static requests use cache-busting query parameters; expected HTML fragments are retried to tolerate brief deployment propagation delays.
 - Review the run history in GitHub Actions. A failed smoke run means production needs investigation; it does not automatically mean the static storefront is unavailable.
 
 ## Incident triage
@@ -25,7 +25,7 @@
 
 ## Rate limiting limitation
 
-The product function currently has an isolate-local throttle. It is defence in depth only and is not globally consistent across Cloudflare isolates. A Cloudflare WAF rate-limiting rule normally requires a zone-controlled hostname. The current public canonical hostname is `nesstora.pages.dev`; confirm a custom domain and its zone are attached before attempting to create a zone-level rule. Do not claim global rate limiting is enabled until the rule is created and verified against the real hostname.
+The product function currently has an isolate-local throttle. It is defence in depth only and is not globally consistent across Cloudflare isolates. A Cloudflare WAF rate-limiting rule normally requires a zone-controlled hostname. The Cloudflare project currently lists only `nesstora.pages.dev` and no custom domain. Confirm a supported hostname and zone before attempting to create a zone-level rule; do not assume a Pages deployment URL is a customer-owned zone. Do not claim global rate limiting is enabled until the rule is created and verified against the real hostname.
 
 ## Release checklist
 
