@@ -116,7 +116,10 @@
     const liveButton = document.querySelector("#find-products");
     if (liveGrid) liveGrid.replaceChildren();
     if (liveStatus) liveStatus.textContent = "Selected marketplace: Amazon " + marketplaces[market].label + ". Search to load products for this store.";
-    if (liveButton) liveButton.disabled = false;
+    if (liveButton) {
+      liveButton.disabled = false;
+      liveButton.textContent = "Find live products ↗";
+    }
     document.querySelectorAll("[data-market-select]").forEach(el => { el.value = market; });
     document.querySelectorAll("[data-amazon-query]").forEach(el => setAmazonLink(el, el.getAttribute("data-amazon-query")));
     document.querySelectorAll("[data-market-label]").forEach(el => { el.textContent = marketplaces[current].label; });
@@ -160,6 +163,19 @@
         grid.append(card);
       });
     };
+
+    category.addEventListener("change", () => {
+      // Results must always correspond to the category currently selected in the UI.
+      productFinderRequestId++;
+      if (productFinderAbortController) {
+        productFinderAbortController.abort();
+        productFinderAbortController = null;
+      }
+      button.disabled = false;
+      button.textContent = "Find live products ↗";
+      grid.replaceChildren();
+      status.textContent = "Category changed. Search to load products for the selected category.";
+    });
 
     button.addEventListener("click", async () => {
       const requestId = ++productFinderRequestId;
