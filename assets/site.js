@@ -224,6 +224,7 @@
     });
   };
 
+  const PARTNER_IMAGE_HOSTS = new Set(["images.unsplash.com", "m.media-amazon.com", "images-na.ssl-images-amazon.com", "images-eu.ssl-images-amazon.com", "images-fe.ssl-images-amazon.com"]);
   const validAffiliateProduct = product => {
     if (!product || typeof product !== "object" || Array.isArray(product)) return false;
     if (product.network !== "awin" || product.status !== "active") return false;
@@ -240,7 +241,7 @@
     if (product.imageUrl) {
       try {
         const image = new URL(product.imageUrl);
-        if (image.protocol !== "https:" || image.username || image.password) return false;
+        if (image.protocol !== "https:" || image.username || image.password || !PARTNER_IMAGE_HOSTS.has(image.hostname.toLowerCase())) return false;
       } catch (_) { return false; }
     }
     return true;
