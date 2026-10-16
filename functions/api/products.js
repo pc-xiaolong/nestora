@@ -95,7 +95,20 @@ async function getToken(env, version, credentialKey) {
 }
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
-  if (isRateLimited(request)) {
+  const clientIp = request.headers.get("cf-connecting-ip");
+  // Optional Cloudflare Rate Limiting binding. Counters are shared within a
+  // Cloudflare location, but are not globally consistent. Configure only after
+  // choosing a namespace ID unique within this account.
+  if (env.PRODUCT_RATE_LIMITER && typeof env.PRODUCT_RATE_LIMITER.limit === "function" && clientIp) {
+    try {
+      const decision = await env.PRODUCT_RATE_LIMITER.limit({ key: "products:" + clientIp });
+      if (!decision || decision.success !== true) {
+        return json({ error: "Too many product lookup requests. Wait briefly before retrying." }, 429, { "retry-after": "60" });
+      }
+    } catch (_) {
+      return json({ error: "Product lookup protection is temporarily unavailable. Please retry shortly." }, 503, { "retry-after": "10" });
+    }
+  } else if (isRateLimited(request)) {
     return json({ error: "Too many product lookup requests. Wait briefly before retrying." }, 429, { "retry-after": "60" });
   }
   const marketKey = url.searchParams.get("market") || "uk";
