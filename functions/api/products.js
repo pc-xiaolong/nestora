@@ -23,6 +23,29 @@ const CATEGORIES = {
 let tokenCache = { key: "", accessToken: "", expiresAt: 0 };
 const productCache = new Map();
 const PRODUCT_CACHE_TTL_MS = 5 * 60 * 1000;
+// Isolate-local defence in depth. Configure a Cloudflare edge rate-limit rule for globally shared enforcement.
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 30;
+const requestWindows = new Map();
+function isRateLimited(request) {
+  const clientIp = request.headers.get("cf-connecting-ip");
+  // Cloudflare supplies this header at the edge. Avoid grouping local/test requests with no IP together.
+  if (!clientIp) return false;
+  const now = Date.now();
+  let window = requestWindows.get(clientIp);
+  if (!window || now - window.startedAt >= RATE_LIMIT_WINDOW_MS) {
+    window = { startedAt: now, count: 0 };
+  }
+  window.count++;
+  requestWindows.set(clientIp, window);
+  if (requestWindows.size > 1000) {
+    for (const [ip, value] of requestWindows) {
+      if (now - value.startedAt >= RATE_LIMIT_WINDOW_MS) requestWindows.delete(ip);
+    }
+    while (requestWindows.size > 1000) requestWindows.delete(requestWindows.keys().next().value);
+  }
+  return window.count > RATE_LIMIT_MAX_REQUESTS;
+}
 async function fingerprintSecret(secret) {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(secret));
   return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
@@ -70,6 +93,9 @@ async function getToken(env, version, credentialKey) {
 }
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
+  if (isRateLimited(request)) {
+    return json({ error: "Too many product lookup requests. Wait briefly before retrying." }, 429, { "retry-after": "60" });
+  }
   const marketKey = url.searchParams.get("market") || "ae";
   const category = url.searchParams.get("category") || "cables";
   const market = MARKETS[marketKey];
