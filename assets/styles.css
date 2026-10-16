@@ -69,3 +69,5 @@
 #live-products-grid{margin-top:18px}
 #product-api-status{margin:12px 0 0}
 @media(max-width:600px){.product-finder{padding:16px}.finder-controls{align-items:stretch}.finder-controls .button{width:100%}.product-photo img{height:165px}}
+
+.pick-source{display:inline-block;margin-top:10px;font-size:.86rem;font-weight:700}.amazon-picks-section .trend-card{min-width:0}.amazon-picks-section .trend-content>p{font-size:.9rem;color:var(--muted)}
