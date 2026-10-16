@@ -170,7 +170,15 @@ export async function onRequestGet({ request, env }) {
     const data = await response.json();
     // A 2xx response is not necessarily a valid catalogue payload. Reject schema drift
     // explicitly instead of silently presenting an empty product list or throwing a TypeError.
-    if (!data || typeof data !== "object" || !data.searchResult || !Array.isArray(data.searchResult.items)) {
+    if (
+      !data ||
+      typeof data !== "object" ||
+      Array.isArray(data) ||
+      !data.searchResult ||
+      typeof data.searchResult !== "object" ||
+      !Array.isArray(data.searchResult.items) ||
+      data.searchResult.items.some(item => !item || typeof item !== "object" || Array.isArray(item))
+    ) {
       return json({ error: "Amazon returned an unexpected response format. Please retry shortly; if the problem persists, verify the Creators API version and response schema." }, 502);
     }
     const items = data.searchResult.items.map(item => {
