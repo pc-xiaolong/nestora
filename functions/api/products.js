@@ -22,9 +22,9 @@ const IMAGE_HOSTS = new Set([
   "images-fe.ssl-images-amazon.com"
 ]);
 
-const json = (data, status = 200) => new Response(JSON.stringify(data), {
+const json = (data, status = 200, extraHeaders = {}) => new Response(JSON.stringify(data), {
   status,
-  headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-content-type-options": "nosniff" }
+  headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-content-type-options": "nosniff", ...extraHeaders }
 });
 async function getToken(env, version) {
   const cacheKey = version + ":" + env.CREATORS_API_CLIENT_ID;
@@ -71,9 +71,10 @@ export async function onRequestGet({ request, env }) {
   }
   const version = String(env.CREATORS_API_VERSION).trim();
   if (!["3.1","3.2","3.3"].includes(version)) {
-    return json({ error: "Unsupported Creators API credential version. Configure the exact 3.1, 3.2, or 3.3 version issued by Amazon." }, 500);
+    return json({ error: "Unsupported Creators API credential version. Configure the exact version issued by Amazon." }, 500);
   }
-  const cacheKey = marketKey + ":" + category;
+  // Include the credential version in cache identity to avoid serving data cached under prior configuration.
+  const cacheKey = version + ":" + marketKey + ":" + category;
   const cached = productCache.get(cacheKey);
   if (cached && Date.now() < cached.expiresAt) {
     return json(cached.data);
@@ -99,7 +100,12 @@ export async function onRequestGet({ request, env }) {
         resources: ["images.primary.medium", "itemInfo.title"]
       })
     });
-    if (!response.ok) return json({ error: "Amazon Creators API returned status " + response.status + ". Check access, credential version, and marketplace approval." }, 502);
+    if (!response.ok) {
+      if (response.status === 429) {
+        return json({ error: "Amazon product search is temporarily rate limited. Please wait briefly and retry." }, 503);
+      }
+      return json({ error: "Amazon Creators API returned status " + response.status + ". Check access, credential version, and marketplace approval." }, 502);
+    }
     const data = await response.json();
     const items = (data.searchResult?.items || []).map(item => {
       const productUrl = item.detailPageURL || "";
@@ -127,7 +133,8 @@ export async function onRequestGet({ request, env }) {
     // Keep the isolate cache bounded even if more categories are added later.
     if (productCache.size >= 30) productCache.delete(productCache.keys().next().value);
     productCache.set(cacheKey, { data: result, expiresAt: Date.now() + PRODUCT_CACHE_TTL_MS });
-    return json(result);
+    // Product-search responses contain no user-specific data; permit short edge caching.
+    return json(result, 200, { "cache-control": "public, max-age=60, s-maxage=300, stale-while-revalidate=60" });
   } catch (error) {
     return json({ error: "Product lookup failed. Verify Creators API configuration in Cloudflare." }, 502);
   }
