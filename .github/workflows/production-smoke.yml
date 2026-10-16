@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: "17,47 * * * *"
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Nesstora quality gate"]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
@@ -14,11 +18,15 @@ concurrency:
 
 jobs:
   production-smoke:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Wait for Pages deployment propagation
+        if: ${{ github.event_name == 'workflow_run' }}
+        run: sleep 90
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
