@@ -114,7 +114,7 @@
       if (!response.ok) throw new Error("Picks unavailable");
       const catalogue = await response.json();
       if (!catalogue || catalogue.schemaVersion !== 1 || !Array.isArray(catalogue.products)) throw new Error("Invalid picks");
-      marketplacePicks = catalogue.products.filter(product => product && ["uk", "ae", "us"].includes(product.market) && typeof product.title === "string" && typeof product.query === "string" && typeof product.sourceUrl === "string" && /^https:\/\/(www\\.)?amazon\\.(co\\.uk|com|ae)\//.test(product.sourceUrl));
+      marketplacePicks = catalogue.products.filter(product => product && ["uk", "ae", "us"].includes(product.market) && typeof product.title === "string" && typeof product.query === "string" && typeof product.sourceUrl === "string" && (() => { try { const source = new URL(product.sourceUrl); return source.protocol === "https:" && ["www.amazon.com", "www.amazon.co.uk", "www.amazon.ae"].includes(source.hostname); } catch (_) { return false; } })());
       renderMarketplacePicks();
     } catch (_) {
       marketplacePicks = [];
