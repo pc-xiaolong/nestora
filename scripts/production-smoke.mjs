@@ -2,23 +2,31 @@ import assert from "node:assert/strict";
 
 const origin = (process.env.PRODUCTION_URL || "https://nesstora.pages.dev").replace(/\/$/, "");
 const timeout = 10000;
+let requestSequence = 0;
 
 async function get(path) {
-  return fetch(origin + path, {
+  const target = new URL(path, origin);
+  target.searchParams.set("__smoke", String(Date.now()) + "-" + String(++requestSequence));
+  return fetch(target, {
     redirect: "follow",
+    cache: "no-store",
     signal: AbortSignal.timeout(timeout),
-    headers: { "user-agent": "Nesstora-Production-Smoke/1.0", "cache-control": "no-cache" }
+    headers: { "user-agent": "Nesstora-Production-Smoke/1.0", "cache-control": "no-cache, no-store" }
   });
 }
 
 async function html(path, required, options = {}) {
-  const response = await get(path);
-  assert.equal(response.status, options.status ?? 200, `${path} should return HTTP ${options.status ?? 200}, got ${response.status}`);
-  const body = await response.text();
-  for (const fragment of required) {
-    assert.ok(body.includes(fragment), `${path} is missing expected content: ${fragment}`);
+  let lastFailure;
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    const response = await get(path);
+    assert.equal(response.status, options.status ?? 200, `${path} should return HTTP ${options.status ?? 200}, got ${response.status}`);
+    const body = await response.text();
+    const missing = required.filter(fragment => !body.includes(fragment));
+    if (missing.length === 0) return { response, body };
+    lastFailure = `${path} is missing expected content: ${missing.join(", ")} (attempt ${attempt}/4)`;
+    if (attempt < 4) await new Promise(resolve => setTimeout(resolve, 3000));
   }
-  return { response, body };
+  assert.fail(lastFailure);
 }
 
 const home = await html("/", [
