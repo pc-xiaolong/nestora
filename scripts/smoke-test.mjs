@@ -67,8 +67,10 @@ for (const product of amazonPicks.products) {
   assert.ok(product.title && product.query && product.sourceUrl, "Every Amazon candidate must have title, search query and source");
   assert.ok(product.sourceUrl.startsWith("https://www.amazon."), "Bestseller source must be an Amazon HTTPS page");
 }
-assert.ok(js.includes("renderMarketplacePicks"), "Marketplace shortlist renderer must exist");
-assert.ok(read("shop/index.html").includes('id="amazon-picks-grid"'), "Shop must contain the Amazon picks grid");
+assert.ok(js.includes("renderTrending"), "Marketplace category-search renderer must exist");
+assert.ok(read("shop/index.html").includes('id="trend-grid"'), "Shop must contain the category-search grid");
+assert.ok(!read("shop/index.html").includes('id="amazon-picks-grid"'), "Do not present unverified search candidates as individual product cards");
+assert.ok(read("shop/index.html").includes("Individual product images are shown only when supplied through an approved retailer source."), "Shop must explain that exact product images require an approved retailer source");
 
 const affiliateCatalogue = JSON.parse(read("assets/affiliate-products.json"));
 assert.equal(affiliateCatalogue.schemaVersion, 1, "Affiliate catalogue schema version must be explicit");
