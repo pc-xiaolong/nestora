@@ -75,7 +75,7 @@
 /* Category-search cards intentionally do not pretend to show exact product photography. */
 .category-mark{min-height:92px;display:flex;align-items:center;justify-content:center;background:var(--sage);color:var(--green);font-size:2.1rem;font-weight:800;letter-spacing:.02em}
 
-/* Shop-first Nestora storefront */
+/* Shop-first Nesstora storefront */
 .storefront{background:#fff;color:#202a35;line-height:1.5}
 .store-header{position:sticky;top:0;z-index:20;background:#131921;color:#fff;box-shadow:0 2px 7px #0002}
 .store-top{min-height:76px;display:flex;align-items:center;gap:22px;padding-block:12px}
@@ -99,3 +99,30 @@
 @media(max-width:900px){.store-category-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.store-hero-inner{gap:25px}.store-nav-inner{gap:17px}}
 @media(max-width:680px){.store-top{gap:10px;flex-wrap:wrap;padding-block:10px}.store-brand{font-size:1.35rem}.store-search{order:3;flex-basis:100%;height:43px}.store-market{margin-left:auto}.store-menu-toggle{display:block;padding:6px 9px}.store-nav-inner{gap:17px;min-height:42px}.store-nav-inner>a:nth-of-type(n+5){display:none}.store-hero-inner{grid-template-columns:1fr;padding-block:28px 30px;gap:24px}.store-hero-copy{padding:0}.store-hero h1{font-size:clamp(2.75rem,13vw,4rem)}.store-hero-photo{height:245px}.store-benefits-inner{display:grid;grid-template-columns:1fr 1fr;font-size:.78rem;gap:10px}.store-section{padding-block:38px}.store-section-heading{align-items:flex-start;flex-direction:column}.store-category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.store-category-card img{height:125px}.store-category-copy{padding:12px;min-height:130px}.store-category-copy strong{font-size:1rem}.store-feature-inner{grid-template-columns:1fr;gap:22px;padding-block:30px}.store-feature-inner img{height:200px}.store-guide-grid{grid-template-columns:1fr}.store-nav-spacer{display:none}}
 @media(max-width:380px){.store-category-grid{grid-template-columns:1fr}.store-category-card{display:grid;grid-template-columns:112px 1fr}.store-category-card img{height:100%;min-height:142px}.store-category-copy{min-height:142px}.store-market{font-size:.7rem}}
+
+
+/* Nesstora brand refresh: forest green, sage and warm ivory */
+.store-header{background:#203d33;color:#fff}
+.store-nav{background:#2c5143;border-color:#3a6253}
+.store-nav a{color:#fff}
+.store-nav a:hover{color:#e5eee6}
+.store-market select{border-color:#6d8a7c;background:#fff;color:#203d33}
+.store-menu-toggle{border-color:#6d8a7c;background:#2c5143;color:#fff}
+.store-hero{background:linear-gradient(110deg,#f5f6ef 0%,#eef2e8 54%,#dfe9dc 100%)}
+.store-kicker{color:#315b48}
+.store-hero h1 span{color:#315b48}
+.store-primary{background:#315b48;color:#fff;border-color:#315b48}
+.store-primary:hover{background:#234434;color:#fff;border-color:#234434}
+.store-secondary{color:#234434}
+.store-secondary:hover{color:#315b48}
+.store-benefits{background:#e6ede3;border-color:#d4dfd1;color:#294638}
+.store-category-card:hover{border-color:#8da994;box-shadow:0 14px 32px rgba(35,68,52,.12)}
+.store-category-copy b,.store-view-all{color:#315b48}
+.store-feature-band{background:#e8eee6}
+.store-disclosure{background:#f0f1e9}
+.store-footer{background:#f8f7f2}
+.store-header .brand,.store-header .store-brand{color:#fff}
+.store-header .brand-mark{background:#dce8d9;color:#234434}
+.store-header .store-search button{background:#315b48;border-color:#315b48;color:#fff}
+.store-header .store-search button:hover{background:#234434}
+.store-header .store-search input:focus{outline-color:#9ebba3}
