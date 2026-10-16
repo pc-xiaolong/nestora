@@ -454,3 +454,50 @@ test("returns a controlled upstream-response error when Amazon returns invalid J
     globalThis.fetch = originalFetch;
   }
 });
+
+test("returns a controlled schema error when Amazon returns valid JSON without catalogue items", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async input => {
+    if (String(input).includes("/auth/o2/token")) {
+      return new Response(JSON.stringify({ access_token: "schema-test-token", expires_in: 3600 }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ message: "request accepted but response schema changed" }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    });
+  };
+  try {
+    const response = await onRequestGet({
+      request: makeRequest("?market=uk&category=audio"),
+      env: { CREATORS_API_CLIENT_ID: "unit-test-invalid-schema", CREATORS_API_CLIENT_SECRET: "test-only-secret", CREATORS_API_VERSION: "3.1" }
+    });
+    assert.equal(response.status, 502);
+    assert.match((await response.json()).error, /unexpected response format/i);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("rejects a non-array catalogue items field instead of treating it as an empty catalogue", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async input => {
+    if (String(input).includes("/auth/o2/token")) {
+      return new Response(JSON.stringify({ access_token: "schema-array-test-token", expires_in: 3600 }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ searchResult: { items: { asin: "B012345678" } } }), {
+      status: 200,
+      headers: { "content-type": "application/json" }
+    });
+  };
+  try {
+    const response = await onRequestGet({
+      request: makeRequest("?market=uk&category=audio"),
+      env: { CREATORS_API_CLIENT_ID: "unit-test-non-array-items", CREATORS_API_CLIENT_SECRET: "test-only-secret", CREATORS_API_VERSION: "3.1" }
+    });
+    assert.equal(response.status, 502);
+    assert.match((await response.json()).error, /unexpected response format/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
