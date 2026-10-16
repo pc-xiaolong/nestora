@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-16",
+  "sourceNotes": "Bestseller-page signals checked during research; rankings and availability may change. These are tagged Amazon search links, not verified direct product-detail URLs.",
+  "products": [
+    {
+      "id": "us-1",
+      "market": "us",
+      "title": "Apple AirTag",
+      "query": "Apple AirTag",
+      "category": "Electronics",
+      "sourceUrl": "https://www.amazon.com/Best-Sellers/zgbs"
+    },
+    {
+      "id": "us-2",
+      "market": "us",
+      "title": "Apple AirPods Pro 2 USB-C",
+      "query": "Apple AirPods Pro 2 USB-C",
+      "category": "Audio",
+      "sourceUrl": "https://www.amazon.com/Best-Sellers/zgbs"
+    },
+    {
+      "id": "us-3",
+      "market": "us",
+      "title": "Amazon Fire TV Stick HD",
+      "query": "Amazon Fire TV Stick HD",
+      "category": "Streaming",
+      "sourceUrl": "https://www.amazon.com/Best-Sellers/zgbs"
+    },
+    {
+      "id": "us-4",
+      "market": "us",
+      "title": "Amazon Fire TV Stick 4K",
+      "query": "Amazon Fire TV Stick 4K",
+      "category": "Streaming",
+      "sourceUrl": "https://www.amazon.com/Best-Sellers/zgbs"
+    },
+    {
+      "id": "us-5",
+      "market": "us",
+      "title": "Stanley Quencher H2.0 40 oz Tumbler",
+      "query": "Stanley Quencher H2.0 40 oz",
+      "category": "Drinkware",
+      "sourceUrl": "https://www.amazon.com/Best-Sellers/zgbs"
+    },
+    {
+      "id": "us-6",
+      "market": "us",
+      "title": "Crocs Classic Clog",
+      "query": "Crocs Classic Clog",
+      "category": "Footwear",
+      "sourceUrl": "https://www.amazon.com/Best-Sellers/zgbs"
+    },
+    {
+      "id": "us-7",
+      "market": "us",
+      "title": "Gildan Men's Crew T-Shirts Multipack",
+      "query": "Gildan Mens Crew T-Shirts Multipack",
+      "category": "Clothing",
+      "sourceUrl": "https://www.amazon.com/Best-Sellers/zgbs"
+    },
+    {
+      "id": "us-8",
+      "market": "us",
+      "title": "ZELUS Weighted Workout Vest",
+      "query": "ZELUS Weighted Vest",
+      "category": "Fitness",
+      "sourceUrl": "https://www.amazon.com/Best-Sellers/zgbs"
+    },
+    {
+      "id": "us-9",
+      "market": "us",
+      "title": "USANOOKS Microfiber Car Cleaning Cloths",
+      "query": "USANOOKS Microfiber Cleaning Cloth",
+      "category": "Automotive",
+      "sourceUrl": "https://www.amazon.com/Best-Sellers/zgbs"
+    },
+    {
+      "id": "us-10",
+      "market": "us",
+      "title": "EcoNour Car Windshield Sun Shade",
+      "query": "EcoNour Car Windshield Sun Shade",
+      "category": "Automotive",
+      "sourceUrl": "https://www.amazon.com/Best-Sellers/zgbs"
+    },
+    {
+      "id": "uk-1",
+      "market": "uk",
+      "title": "Pokémon TCG Destined Rivals Booster Bundle",
+      "query": "Pokemon TCG Destined Rivals Booster Bundle",
+      "category": "Toys & Games",
+      "sourceUrl": "https://www.amazon.co.uk/bestsellers"
+    },
+    {
+      "id": "uk-2",
+      "market": "uk",
+      "title": "LEGO Speed Champions Ferrari SF-24 F1 Race Car",
+      "query": "LEGO Speed Champions Ferrari SF-24",
+      "category": "Toys & Games",
+      "sourceUrl": "https://www.amazon.co.uk/bestsellers"
+    },
+    {
+      "id": "uk-3",
+      "market": "uk",
+      "title": "Mattel Games UNO Classic",
+      "query": "Mattel Games UNO Classic Card Game",
+      "category": "Toys & Games",
+      "sourceUrl": "https://www.amazon.co.uk/bestsellers"
+    },
+    {
+      "id": "uk-4",
+      "market": "uk",
+      "title": "Crayola SuperTips Washable Markers 24 Pack",
+      "query": "Crayola SuperTips Washable Markers 24",
+      "category": "Arts & Crafts",
+      "sourceUrl": "https://www.amazon.co.uk/bestsellers"
+    },
+    {
+      "id": "uk-5",
+      "market": "uk",
+      "title": "Coca-Cola Zero Sugar 24 x 330 ml",
+      "query": "Coca-Cola Zero Sugar 24 x 330ml",
+      "category": "Grocery",
+      "sourceUrl": "https://www.amazon.co.uk/bestsellers"
+    },
+    {
+      "id": "uk-6",
+      "market": "uk",
+      "title": "Velvet Classic Quilted Toilet Tissue 24 Rolls",
+      "query": "Velvet Classic Quilted Toilet Tissue 24 Rolls",
+      "category": "Household",
+      "sourceUrl": "https://www.amazon.co.uk/bestsellers"
+    },
+    {
+      "id": "uk-7",
+      "market": "uk",
+      "title": "Gorilla Super Glue 15 g",
+      "query": "Gorilla Super Glue 15g",
+      "category": "DIY",
+      "sourceUrl": "https://www.amazon.co.uk/bestsellers"
+    },
+    {
+      "id": "uk-8",
+      "market": "uk",
+      "title": "DESIRETECH 4-Gang UK Extension Lead",
+      "query": "DESIRETECH 4 Gang Extension Lead UK",
+      "category": "Electronics",
+      "sourceUrl": "https://www.amazon.co.uk/bestsellers"
+    },
+    {
+      "id": "uk-9",
+      "market": "uk",
+      "title": "Amazon Basics Vacuum Compression Storage Bags",
+      "query": "Amazon Basics Vacuum Compression Storage Bags",
+      "category": "Home Storage",
+      "sourceUrl": "https://www.amazon.co.uk/bestsellers"
+    },
+    {
+      "id": "uk-10",
+      "market": "uk",
+      "title": "BRITA MAXTRA PRO Water Filter Cartridges 6 Pack",
+      "query": "BRITA MAXTRA PRO Water Filter Cartridge 6 Pack",
+      "category": "Kitchen",
+      "sourceUrl": "https://www.amazon.co.uk/bestsellers"
+    },
+    {
+      "id": "ae-1",
+      "market": "ae",
+      "title": "TP-Link Tapo C200 Pan/Tilt Security Camera",
+      "query": "TP-Link Tapo C200 Security Camera",
+      "category": "Smart Home",
+      "sourceUrl": "https://www.amazon.ae/gp/bestsellers/electronics"
+    },
+    {
+      "id": "ae-2",
+      "market": "ae",
+      "title": "Duracell AA Alkaline Batteries 20 Pack",
+      "query": "Duracell AA Alkaline Batteries 20 Pack",
+      "category": "Batteries",
+      "sourceUrl": "https://www.amazon.ae/gp/bestsellers/electronics"
+    },
+    {
+      "id": "ae-3",
+      "market": "ae",
+      "title": "Apple EarPods USB-C",
+      "query": "Apple EarPods USB-C",
+      "category": "Audio",
+      "sourceUrl": "https://www.amazon.ae/gp/bestsellers/electronics"
+    },
+    {
+      "id": "ae-4",
+      "market": "ae",
+      "title": "ECVV 4-Piece Universal Travel Adapter",
+      "query": "ECVV 4 Piece Universal Travel Adapter",
+      "category": "Travel",
+      "sourceUrl": "https://www.amazon.ae/gp/bestsellers/electronics"
+    },
+    {
+      "id": "ae-5",
+      "market": "ae",
+      "title": "Apple AirTag 1 Pack",
+      "query": "Apple AirTag 1 Pack",
+      "category": "Electronics",
+      "sourceUrl": "https://www.amazon.ae/gp/bestsellers/electronics"
+    },
+    {
+      "id": "ae-6",
+      "market": "ae",
+      "title": "Soundcore Anker P20i Wireless Earbuds",
+      "query": "Soundcore Anker P20i Wireless Earbuds",
+      "category": "Audio",
+      "sourceUrl": "https://www.amazon.ae/gp/bestsellers/electronics"
+    },
+    {
+      "id": "ae-7",
+      "market": "ae",
+      "title": "Apple AirPods Pro 2 USB-C",
+      "query": "Apple AirPods Pro 2 USB-C",
+      "category": "Audio",
+      "sourceUrl": "https://www.amazon.ae/gp/bestsellers/electronics"
+    },
+    {
+      "id": "ae-8",
+      "market": "ae",
+      "title": "Xiaomi TV Box S 3rd Gen",
+      "query": "Xiaomi TV Box S 3rd Gen",
+      "category": "Streaming",
+      "sourceUrl": "https://www.amazon.ae/gp/bestsellers/electronics"
+    },
+    {
+      "id": "ae-9",
+      "market": "ae",
+      "title": "Amazon Kindle Paperwhite 16 GB",
+      "query": "Amazon Kindle Paperwhite 16GB",
+      "category": "Reading",
+      "sourceUrl": "https://www.amazon.ae/gp/bestsellers/electronics"
+    },
+    {
+      "id": "ae-10",
+      "market": "ae",
+      "title": "JISULIFE Rechargeable Handheld Turbo Fan",
+      "query": "JISULIFE Handheld Turbo Fan Rechargeable",
+      "category": "Cooling",
+      "sourceUrl": "https://www.amazon.ae/gp/bestsellers/electronics"
+    }
+  ]
+}
