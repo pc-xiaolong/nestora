@@ -12,6 +12,10 @@ assert.equal(config.pages_build_output_dir, ".", "Pages must publish the reposit
 assert.ok(config.compatibility_date, "Pages Functions compatibility date must be set");
 assert.ok(existsSync(join(root, "functions/api/products.js")), "Product Pages Function must exist");
 assert.ok(existsSync(join(root, "404.html")), "Custom 404 page must exist");
+const securityHeaders = read("_headers");
+for (const header of ["X-Content-Type-Options: nosniff", "X-Frame-Options: DENY", "Referrer-Policy:", "Content-Security-Policy:"]) {
+  assert.ok(securityHeaders.includes(header), `Security header must be configured: ${header}`);
+}
 assert.ok(!existsSync(join(root, "worker.js")), "Do not ship a standalone Worker entrypoint in the Pages asset root");
 
 const routes = JSON.parse(read("_routes.json"));
@@ -21,6 +25,7 @@ assert.deepEqual(routes.exclude, [], "No API route exclusions should shadow the 
 
 const js = read("assets/site.js");
 const api = read("functions/api/products.js");
+assert.ok(!js.includes("CREATORS_API_CLIENT_SECRET"), "Amazon client secrets must never be included in browser JavaScript");
 for (const [market, tag, host] of [
   ["ae", "nestora073-21", "www.amazon.ae"],
   ["uk", "trivenico-21", "www.amazon.co.uk"],
