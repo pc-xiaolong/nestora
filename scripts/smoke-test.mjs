@@ -29,6 +29,10 @@ assert.ok(!js.includes("CREATORS_API_CLIENT_SECRET"), "Amazon client secrets mus
 assert.ok(api.includes("AbortSignal.timeout(8000)"), "OAuth requests must have a bounded timeout");
 assert.ok(api.includes("AbortSignal.timeout(10000)"), "Catalog requests must have a bounded timeout");
 assert.ok(api.includes("PRODUCT_CACHE_TTL_MS"), "Product results must be cached to reduce repeated upstream calls");
+assert.ok(api.includes("s-maxage=300"), "Successful product search responses should be eligible for short shared caching");
+assert.ok(api.includes('response.status === 429'), "Amazon rate limits must produce a controlled response");
+assert.ok(api.includes('env.CREATORS_API_CLIENT_ID + ":" + marketKey'), "Product cache must be scoped to the credential identity");
+
 assert.ok(api.includes("IMAGE_HOSTS.has(imageUrl.hostname)"), "Product image hosts must be allowlisted");
 assert.ok(api.includes("!env.CREATORS_API_VERSION"), "Credential version must be explicit; do not silently assume a region");
 assert.ok(!api.includes('env.CREATORS_API_VERSION || "3.2"'), "API must not silently select an OAuth region");
