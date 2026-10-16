@@ -90,6 +90,13 @@
     if (!marketplaces[market]) return;
     current = market;
     try { localStorage.setItem(key, market); } catch (_) {}
+    // Never leave results from a previous marketplace visible after the user switches stores.
+    const liveGrid = document.querySelector("#live-products-grid");
+    const liveStatus = document.querySelector("#product-api-status");
+    const liveButton = document.querySelector("#find-products");
+    if (liveGrid) liveGrid.replaceChildren();
+    if (liveStatus) liveStatus.textContent = "Marketplace changed to Amazon " + marketplaces[market].label + ". Search again to load products for this store.";
+    if (liveButton) liveButton.disabled = false;
     document.querySelectorAll("[data-market-select]").forEach(el => { el.value = market; });
     document.querySelectorAll("[data-amazon-query]").forEach(el => setAmazonLink(el, el.getAttribute("data-amazon-query")));
     document.querySelectorAll("[data-market-label]").forEach(el => { el.textContent = marketplaces[current].label; });
