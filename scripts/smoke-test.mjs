@@ -91,6 +91,7 @@ const sitemap = read("sitemap.xml");
 assert.ok(sitemap.includes("<urlset"), "Sitemap must be a valid sitemap document");
 assert.ok(read("robots.txt").includes("Sitemap: https://nesstora.pages.dev/sitemap.xml"), "Robots file must point to the production sitemap");
 const productionOrigin = "https://nesstora.pages.dev";
+assert.ok(!read("index.html").includes("NESTORA"), "Homepage must not contain the legacy uppercase brand spelling");
 assert.ok(sitemap.includes("<loc>" + productionOrigin + "/</loc>"), "Sitemap must include the production homepage");
 assert.ok(sitemap.includes("<loc>" + productionOrigin + "/shop/</loc>"), "Sitemap must include the shop");
 assert.ok(sitemap.includes("<loc>" + productionOrigin + "/guides/</loc>"), "Sitemap must include the guide directory");
