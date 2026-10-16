@@ -32,6 +32,7 @@ assert.ok(js.includes('button.textContent = "Find live products ↗"'), "Product
 assert.ok(api.includes("AbortSignal.timeout(8000)"), "OAuth requests must have a bounded timeout");
 assert.ok(api.includes("AbortSignal.timeout(10000)"), "Catalog requests must have a bounded timeout");
 assert.ok(api.includes("PRODUCT_CACHE_TTL_MS"), "Product results must be cached to reduce repeated upstream calls");
+assert.ok(api.includes('url.searchParams.get("market") || "uk"'), "Product API default marketplace must match the UK storefront default");
 assert.ok(api.includes("s-maxage=300"), "Successful product search responses should be eligible for short shared caching");
 assert.ok(api.includes('response.status === 429'), "Amazon rate limits must produce a controlled response");
 assert.ok(api.includes("fingerprintSecret(env.CREATORS_API_CLIENT_SECRET)"), "Credential rotation must invalidate cached tokens and product results");
