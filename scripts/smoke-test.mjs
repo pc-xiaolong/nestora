@@ -57,6 +57,20 @@ for (const [market, tag, host] of [
   assert.ok(api.includes(`host: "${host}"`), `API host for ${market} must exist`);
 }
 
+const affiliateCatalogue = JSON.parse(read("assets/affiliate-products.json"));
+assert.equal(affiliateCatalogue.schemaVersion, 1, "Affiliate catalogue schema version must be explicit");
+assert.ok(Array.isArray(affiliateCatalogue.products), "Affiliate catalogue products must be an array");
+assert.equal(affiliateCatalogue.products.length, 0, "Do not publish placeholder or unverified partner offers");
+assert.ok(js.includes("validAffiliateProduct"), "Partner products must pass browser-side validation");
+assert.ok(js.includes('product.network !== "awin"'), "Only explicitly tagged Awin products may render in the partner catalogue");
+assert.ok(js.includes('product.status !== "active"'), "Draft or unapproved partner products must not render");
+assert.ok(js.includes('url.protocol !== "https:"'), "Partner tracking links must use HTTPS");
+assert.ok(js.includes('"awin1.com", "www.awin1.com", "awin.com", "www.awin.com"'), "Partner links must be restricted to Awin tracking domains");
+assert.ok(js.includes("renderPartnerCatalogue();"), "Partner offers must refresh when the selected marketplace changes");
+const shopHtml = read("shop/index.html");
+assert.ok(shopHtml.includes('id="partner-products-section"'), "Shop must contain the conditional partner-offers section");
+assert.ok(shopHtml.includes('id="partner-products-grid"'), "Shop must contain the partner product grid");
+
 const htmlFiles = [];
 function walk(dir) {
   for (const entry of readdirSync(join(root, dir), { withFileTypes: true })) {
