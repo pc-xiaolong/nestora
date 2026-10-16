@@ -11,7 +11,11 @@
       { icon: "⌁", tag: "Desk setup", title: "Cable tidy clips and sleeves", why: "Route loose leads along desk edges and bundle longer runs.", query: "desk cable tidy clips cable sleeve", signal: "Common cable-routing option" },
       { icon: "▱", tag: "Under desk", title: "Clamp-on cable management trays", why: "Lift power strips and excess cable away from the floor.", query: "under desk cable management tray clamp no drill", signal: "Practical workspace-storage category" },
       { icon: "▦", tag: "Drawer order", title: "Adjustable drawer organiser trays", why: "Create separate zones for stationery, tools or everyday essentials.", query: "adjustable drawer organiser trays set", signal: "Common home-organisation use case" },
-      { icon: "▥", tag: "Vertical space", title: "Over-door storage organisers", why: "Add storage without using another patch of floor space.", query: "over door storage organiser pockets", signal: "Useful for compact rooms" }
+      { icon: "▥", tag: "Vertical space", title: "Over-door storage organisers", why: "Add storage without using another patch of floor space.", query: "over door storage organiser pockets", signal: "Useful for compact rooms" },
+      { icon: "⚡", tag: "Charging tech", title: "GaN USB-C fast chargers", why: "Compare compact multi-port chargers for phones, tablets and laptops.", query: "GaN USB C fast charger multi port UK plug", signal: "Useful everyday charging accessory" },
+      { icon: "▰", tag: "Portable power", title: "USB-C power banks", why: "Check capacity, output wattage, airline rules and device compatibility.", query: "USB C PD power bank 20000mAh", signal: "Practical mobile-power category" },
+      { icon: "⌘", tag: "Desk tech", title: "USB-C hubs and docks", why: "Add the ports your laptop actually needs; verify display and power-delivery support.", query: "USB C hub HDMI power delivery laptop", signal: "Common laptop-accessory need" },
+      { icon: "♫", tag: "Audio", title: "Wireless earbuds", why: "Compare fit, microphone quality, battery life and multipoint support.", query: "wireless earbuds multipoint USB C charging", signal: "Popular personal-electronics category" }
     ],
     ae: [
       { icon: "▦", tag: "Drawer order", title: "Clear drawer organiser trays", why: "Separate small items in bathroom, kitchen or office drawers.", query: "clear drawer organiser trays set", signal: "Useful compact-storage category" },
@@ -19,7 +23,11 @@
       { icon: "▥", tag: "Vertical space", title: "Stackable metal storage shelves", why: "Use vertical space in kitchens, utility rooms and compact storage areas.", query: "stackable metal storage shelves kitchen bathroom", signal: "Common household-storage option" },
       { icon: "↔", tag: "Cable control", title: "Reusable cable ties and clips", why: "Keep charging cables and workstation leads grouped together.", query: "reusable cable ties adhesive cable clips", signal: "Common desk-organisation need" },
       { icon: "⌁", tag: "Desk setup", title: "Under-desk cable trays", why: "Keep adapters and spare cable length off the floor.", query: "under desk cable management tray", signal: "Practical workspace-storage category" },
-      { icon: "▤", tag: "Flexible storage", title: "Lidded stackable storage bins", why: "Store household essentials while keeping contents grouped.", query: "stackable storage bins with lids", signal: "Common home-organisation use case" }
+      { icon: "▤", tag: "Flexible storage", title: "Lidded stackable storage bins", why: "Store household essentials while keeping contents grouped.", query: "stackable storage bins with lids", signal: "Common home-organisation use case" },
+      { icon: "⚡", tag: "Charging tech", title: "USB-C GaN chargers", why: "Compare multi-port chargers against your devices' required wattage and plug type.", query: "USB C GaN charger 65W 100W UAE plug", signal: "Useful everyday charging accessory" },
+      { icon: "▰", tag: "Portable power", title: "USB-C power banks", why: "Check capacity, fast-charge protocols and airline carry-on limits.", query: "USB C PD power bank 20000mAh UAE", signal: "Practical mobile-power category" },
+      { icon: "⌂", tag: "Smart home", title: "Smart plugs and bulbs", why: "Verify Wi-Fi band, app support and compatibility with your smart-home platform.", query: "Matter compatible smart plug smart bulb UAE", signal: "Useful home-automation category" },
+      { icon: "⌘", tag: "Desk tech", title: "USB-C laptop hubs", why: "Check HDMI resolution, USB speeds and pass-through charging before buying.", query: "USB C hub HDMI PD laptop UAE", signal: "Common laptop-accessory need" }
     ],
     us: [
       { icon: "↔", tag: "Cable control", title: "Reusable hook-and-loop cable ties", why: "A low-cost way to bundle cords for home offices and entertainment setups.", query: "reusable hook and loop cable ties", signal: "Common low-cost cable-management category" },
@@ -27,7 +35,11 @@
       { icon: "▱", tag: "Under desk", title: "No-drill cable management trays", why: "Route power strips and loose cable below a desk surface.", query: "under desk cable management tray no drill clamp", signal: "Practical cable-management use case" },
       { icon: "⌖", tag: "Cable routing", title: "Adhesive cable clips", why: "Keep frequently used charging leads near the edge of a table.", query: "adhesive cable clips desk cord organizer", signal: "Practical cable-management use case" },
       { icon: "▦", tag: "Drawer order", title: "Stackable clear storage drawers", why: "Make small items visible and easier to retrieve in cabinets or closets.", query: "stackable clear storage drawers organizer", signal: "Common home-organisation use case" },
-      { icon: "▤", tag: "Flexible storage", title: "Vacuum storage bags", why: "Compress bulky clothing and bedding for closets or seasonal storage.", query: "vacuum storage bags with hand pump", signal: "Common home-organisation use case" }
+      { icon: "▤", tag: "Flexible storage", title: "Vacuum storage bags", why: "Compress bulky clothing and bedding for closets or seasonal storage.", query: "vacuum storage bags with hand pump", signal: "Common home-organisation use case" },
+      { icon: "⚡", tag: "Charging tech", title: "GaN USB-C chargers", why: "Compare wattage, port sharing and USB Power Delivery support.", query: "GaN USB C charger 65W 100W US plug", signal: "Useful everyday charging accessory" },
+      { icon: "▰", tag: "Portable power", title: "USB-C power banks", why: "Compare capacity, charging speed and the devices you need to top up.", query: "USB C PD power bank 20000mAh", signal: "Practical mobile-power category" },
+      { icon: "⌂", tag: "Smart home", title: "Smart plugs and sensors", why: "Check ecosystem compatibility, connectivity and required hubs.", query: "Matter smart plug motion sensor smart home", signal: "Useful home-automation category" },
+      { icon: "⌘", tag: "Computer accessories", title: "USB-C hubs and laptop stands", why: "Match ports, display output and ergonomics to your workstation.", query: "USB C hub HDMI laptop stand adjustable", signal: "Common laptop-accessory need" }
     ]
   };
   const key = "nestora-marketplace";
