@@ -26,3 +26,5 @@ jobs:
           node --input-type=module --check < assets/site.js
       - name: Check Pages configuration and internal links
         run: node scripts/smoke-test.mjs
+      - name: Run product API regression tests
+        run: node --test tests/products.test.mjs
