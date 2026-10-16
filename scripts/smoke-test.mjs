@@ -68,7 +68,7 @@ for (const product of amazonPicks.products) {
   assert.ok(product.sourceUrl.startsWith("https://www.amazon."), "Bestseller source must be an Amazon HTTPS page");
 }
 assert.ok(js.includes("renderMarketplacePicks"), "Marketplace shortlist renderer must exist");
-assert.ok(shopHtml.includes('id="amazon-picks-grid"'), "Shop must contain the Amazon picks grid");
+assert.ok(read("shop/index.html").includes('id="amazon-picks-grid"'), "Shop must contain the Amazon picks grid");
 
 const affiliateCatalogue = JSON.parse(read("assets/affiliate-products.json"));
 assert.equal(affiliateCatalogue.schemaVersion, 1, "Affiliate catalogue schema version must be explicit");
