@@ -17,3 +17,10 @@
 .market-picker select{max-width:100%}
 @media(max-width:560px){.product-image{height:190px}}
 @media(prefers-reduced-motion:reduce){.product-image img{transition:none}.guide-card:hover .product-image img{transform:none}}
+
+/* Homepage photography and responsive image cards */
+.hero-art{background-image:linear-gradient(180deg,rgba(24,39,30,.02) 25%,rgba(24,39,30,.28) 100%),url("https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1400&q=85");background-position:center;background-size:cover}
+.hero-art:before,.hero-art:after{display:none}
+.hero-art .art-note{max-width:290px}
+@media(max-width:800px){.hero-art{min-height:330px}}
+@media(max-width:560px){.hero-art{min-height:265px}}
