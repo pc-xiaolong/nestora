@@ -31,7 +31,9 @@ assert.ok(api.includes("AbortSignal.timeout(10000)"), "Catalog requests must hav
 assert.ok(api.includes("PRODUCT_CACHE_TTL_MS"), "Product results must be cached to reduce repeated upstream calls");
 assert.ok(api.includes("s-maxage=300"), "Successful product search responses should be eligible for short shared caching");
 assert.ok(api.includes('response.status === 429'), "Amazon rate limits must produce a controlled response");
-assert.ok(api.includes('env.CREATORS_API_CLIENT_ID + ":" + marketKey'), "Product cache must be scoped to the credential identity");
+assert.ok(api.includes("fingerprintSecret(env.CREATORS_API_CLIENT_SECRET)"), "Credential rotation must invalidate cached tokens and product results");
+assert.ok(api.includes("parsed.searchParams.get(\"tag\") === market.tag"), "Vended links must match the configured marketplace Partner tag");
+assert.ok(!api.includes("parsed.searchParams.set(\"tag\""), "Never rewrite Amazon-vended links because it can break attribution");
 
 assert.ok(api.includes("IMAGE_HOSTS.has(imageUrl.hostname)"), "Product image hosts must be allowlisted");
 assert.ok(api.includes("!env.CREATORS_API_VERSION"), "Credential version must be explicit; do not silently assume a region");
