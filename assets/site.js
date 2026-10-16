@@ -95,6 +95,80 @@
     document.querySelectorAll("[data-market-label]").forEach(el => { el.textContent = marketplaces[current].label; });
     renderTrending();
   };
+  const initLiveProductFinder = () => {
+    const button = document.querySelector("#find-products");
+    const category = document.querySelector("#product-category");
+    const grid = document.querySelector("#live-products-grid");
+    const status = document.querySelector("#product-api-status");
+    if (!button || !category || !grid || !status) return;
+
+    const renderItems = items => {
+      grid.replaceChildren();
+      items.forEach(item => {
+        const card = document.createElement("article");
+        card.className = "trend-card";
+        const art = document.createElement("div");
+        art.className = "trend-art product-photo";
+        const img = document.createElement("img");
+        img.src = item.image;
+        img.alt = item.title;
+        img.loading = "lazy";
+        img.referrerPolicy = "no-referrer";
+        art.append(img);
+        const content = document.createElement("div");
+        content.className = "trend-content";
+        const title = document.createElement("h3");
+        title.textContent = item.title;
+        const asin = document.createElement("p");
+        asin.className = "trend-signal";
+        asin.textContent = item.asin ? "Amazon ASIN: " + item.asin : "Product details from Amazon";
+        const link = document.createElement("a");
+        link.className = "button";
+        link.href = item.url;
+        link.target = "_blank";
+        link.rel = "sponsored nofollow noopener";
+        link.textContent = "View product on Amazon ↗";
+        content.append(title, asin, link);
+        card.append(art, content);
+        grid.append(card);
+      });
+    };
+
+    button.addEventListener("click", async () => {
+      button.disabled = true;
+      button.textContent = "Searching…";
+      status.textContent = "Requesting current product details from Amazon…";
+      grid.replaceChildren();
+      try {
+        const response = await fetch("/api/products?market=" + encodeURIComponent(current) + "&category=" + encodeURIComponent(category.value), {
+          method: "GET",
+          headers: { "accept": "application/json" },
+          credentials: "omit"
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          if (response.status === 503 && data.configured === false) {
+            status.textContent = "Live product lookup is not configured yet. Add approved Amazon Creators API credentials as Cloudflare secrets; meanwhile, use the tagged search links below.";
+          } else {
+            status.textContent = data.error || "Product lookup is temporarily unavailable. Please use the marketplace search links below.";
+          }
+          return;
+        }
+        if (!Array.isArray(data.items) || data.items.length === 0) {
+          status.textContent = "Amazon returned no usable product listings for this category and marketplace. Try another category.";
+          return;
+        }
+        renderItems(data.items);
+        status.textContent = data.items.length + " current product listing(s) returned by Amazon for the " + marketplaces[current].label + " marketplace. Check the retailer page for availability and terms.";
+      } catch (_) {
+        status.textContent = "Could not reach the product service. Check the deployment and try again; tagged marketplace searches remain available below.";
+      } finally {
+        button.disabled = false;
+        button.textContent = "Find live products ↗";
+      }
+    });
+  };
+
   const initGuideFinder = () => {
     const search = document.querySelector("[data-guide-search]");
     const filter = document.querySelector("[data-guide-filter]");
@@ -147,6 +221,7 @@
       toggle.setAttribute("aria-expanded", String(open));
     });
     initGuideFinder();
+    initLiveProductFinder();
     applyMarket(current);
   });
 })();
