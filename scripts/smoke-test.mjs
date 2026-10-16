@@ -35,7 +35,7 @@ assert.ok(api.includes("fingerprintSecret(env.CREATORS_API_CLIENT_SECRET)"), "Cr
 assert.ok(api.includes("parsed.searchParams.get(\"tag\") === market.tag"), "Vended links must match the configured marketplace Partner tag");
 assert.ok(!api.includes("parsed.searchParams.set(\"tag\""), "Never rewrite Amazon-vended links because it can break attribution");
 for (const category of ["charging", "power", "audio", "smart-home", "desk-tech", "computer-accessories", "wearables", "streaming"]) {
-  assert.ok(api.includes(category + ":"), `API technology category must be supported: ${category}`);
+  assert.ok(api.includes(category + ":") || api.includes("\"" + category + "\":"), `API technology category must be supported: ${category}`);
   assert.ok(js.includes('title: "') && js.includes(category) || read("shop/index.html").includes('value="' + category + '"'), `Shop should expose technology category: ${category}`);
 }
 
