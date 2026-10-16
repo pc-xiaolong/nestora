@@ -396,3 +396,37 @@ test("does not retry Amazon catalog 403 permission failures", async () => {
     globalThis.fetch = originalFetch;
   }
 });
+
+test("returns consistent public cache headers for repeated successful product lookups", async () => {
+  const originalFetch = globalThis.fetch;
+  let tokenCalls = 0;
+  let catalogCalls = 0;
+  globalThis.fetch = async input => {
+    if (String(input).includes("/auth/o2/token")) {
+      tokenCalls++;
+      return new Response(JSON.stringify({ access_token: "cache-header-token", expires_in: 3600 }), { status: 200 });
+    }
+    catalogCalls++;
+    return new Response(JSON.stringify({ searchResult: { items: [{
+      asin: "B012345682",
+      detailPageURL: "https://www.amazon.co.uk/dp/B012345682?tag=trivenico-21",
+      itemInfo: { title: { displayValue: "Cache header test product" } },
+      images: { primary: { medium: { url: "https://m.media-amazon.com/images/I/cache-header.jpg" } } }
+    }] } }), { status: 200 });
+  };
+  try {
+    const env = { CREATORS_API_CLIENT_ID: "unit-test-cache-headers", CREATORS_API_CLIENT_SECRET: "test-only-secret", CREATORS_API_VERSION: "3.1" };
+    const first = await onRequestGet({ request: makeRequest("?market=uk&category=computer-accessories"), env });
+    const firstBody = await first.json();
+    assert.equal(first.status, 200);
+    assert.match(first.headers.get("cache-control"), /s-maxage=300/);
+    const second = await onRequestGet({ request: makeRequest("?market=uk&category=computer-accessories"), env });
+    assert.equal(second.status, 200);
+    assert.equal(second.headers.get("cache-control"), first.headers.get("cache-control"));
+    assert.deepEqual(await second.json(), firstBody);
+    assert.equal(tokenCalls, 1);
+    assert.equal(catalogCalls, 1, "cache hit should not call Amazon again");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
