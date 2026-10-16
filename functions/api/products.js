@@ -187,6 +187,9 @@ export async function onRequestGet({ request, env }) {
     if (error && error.message === "AMAZON_UPSTREAM_UNAVAILABLE") {
       return json({ error: "Amazon authentication is temporarily unavailable. Please retry after a short delay." }, 503, { "retry-after": "30" });
     }
+    if (error && (error.name === "TimeoutError" || error.name === "TypeError")) {
+      return json({ error: "Amazon product lookup could not reach the upstream service. Please retry after a short delay." }, 503, { "retry-after": "30" });
+    }
     return json({ error: "Product lookup failed. Verify Creators API configuration in Cloudflare." }, 502);
   }
 }
