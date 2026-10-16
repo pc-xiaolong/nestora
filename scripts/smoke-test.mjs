@@ -77,7 +77,8 @@ for (const product of amazonPicks.products) {
 }
 assert.ok(js.includes("renderTrending"), "Marketplace category-search renderer must exist");
 assert.ok(read("shop/index.html").includes('id="trend-grid"'), "Shop must contain the category-search grid");
-assert.ok(!read("shop/index.html").includes('id="amazon-picks-grid"'), "Do not present unverified search candidates as individual product cards");
+assert.ok(read("shop/index.html").includes('id="amazon-picks-grid"'), "Shop must render the editorial candidate shortlist");
+assert.ok(read("shop/index.html").includes("This is not a live bestseller ranking"), "Candidate shortlist must clearly disclaim live rankings and verified sales");
 assert.ok(read("shop/index.html").includes("Individual product images are shown only when supplied through an approved retailer source."), "Shop must explain that exact product images require an approved retailer source");
 assert.ok(read("shop/index.html").includes('class="notice affiliate-notice"'), "Shop must show affiliate disclosure near product recommendations");
 assert.ok(read("scripts/production-smoke.mjs").includes('"affiliate-notice"'), "Production smoke monitor must match the shop disclosure class token rather than an exact class attribute");
