@@ -123,15 +123,13 @@ export async function onRequestGet({ request, env }) {
   if (cached) productCache.delete(cacheKey);
 
   try {
-    const token = await getToken(env, version, credentialKey);
-    const headers = {
-      "content-type": "application/json",
-      "x-marketplace": market.host,
-      "authorization": "Bearer " + token
-    };
-    const response = await fetch("https://creatorsapi.amazon/catalog/v1/searchItems", {
+    const requestCatalog = accessToken => fetch("https://creatorsapi.amazon/catalog/v1/searchItems", {
       method: "POST",
-      headers,
+      headers: {
+        "content-type": "application/json",
+        "x-marketplace": market.host,
+        "authorization": "Bearer " + accessToken
+      },
       signal: AbortSignal.timeout(10000),
       body: JSON.stringify({
         keywords,
@@ -141,6 +139,17 @@ export async function onRequestGet({ request, env }) {
         resources: ["images.primary.medium", "itemInfo.title"]
       })
     });
+    let token = await getToken(env, version, credentialKey);
+    let response = await requestCatalog(token);
+    // Retry one time after an authorization failure using a freshly obtained token.
+    // Never loop indefinitely: persistent 401/403 responses are handled below.
+    if (response.status === 401) {
+      if (tokenCache.key === credentialKey) {
+        tokenCache = { key: "", accessToken: "", expiresAt: 0 };
+      }
+      token = await getToken(env, version, credentialKey);
+      response = await requestCatalog(token);
+    }
     if (!response.ok) {
       if (response.status === 401 || response.status === 403) {
         // Do not reuse a token Amazon has rejected. The next request will obtain a fresh token.
