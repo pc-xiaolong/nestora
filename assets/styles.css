@@ -37,3 +37,22 @@
 .live-product-card .product-cta{margin-top:auto;background:var(--green);color:#fff;font-weight:800;text-align:center;padding:12px}
 @media(max-width:760px){.live-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){.live-product-grid{grid-template-columns:1fr}.live-product-card img{height:240px}.product-finder-controls{align-items:stretch}.product-finder-controls label,.product-finder-controls select,.product-finder-controls .button{width:100%}}
+
+/* Marketplace-aware product shortlist */
+.shop-hero{max-width:850px}
+.market-note{font-size:.88rem!important;margin-top:8px}
+.trend-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.trend-card{display:flex;flex-direction:column;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:0 7px 25px rgba(30,48,37,.035)}
+.trend-art{min-height:145px;display:grid;place-items:center;background:linear-gradient(135deg,#e7eee4,#f1e9dd);color:var(--green);font-size:4.2rem;font-weight:800;line-height:1}
+.trend-content{display:flex;flex:1;flex-direction:column;align-items:flex-start;padding:21px}
+.trend-content h3{font-size:1.25rem;line-height:1.2;letter-spacing:-.035em;margin:10px 0}
+.trend-content p{font-size:.92rem;color:var(--muted);margin:0 0 12px}
+.trend-content .trend-signal{font-size:.78rem;background:#f1f2ec;border-radius:9px;padding:9px 10px;margin:0 0 16px}
+.trend-content .button{font-size:.85rem;padding:10px 14px;margin-top:auto}
+.copy-link{margin-top:9px;padding:9px 13px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--green);font:inherit;font-size:.84rem;font-weight:750;cursor:pointer}
+.copy-link:hover{background:var(--sage)}
+.copy-status{min-height:1.5em;color:var(--green);font-size:.9rem}
+.product-image{height:190px;background:var(--sage);overflow:hidden}
+.product-image img{width:100%;height:100%;object-fit:cover}
+@media(max-width:850px){.trend-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.trend-grid{grid-template-columns:1fr}.trend-art{min-height:120px}}
