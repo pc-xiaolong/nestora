@@ -11,11 +11,18 @@ const CATEGORIES = {
   shelves: "narrow freestanding storage shelf",
   bins: "stackable storage bins with lids"
 };
+// Best-effort isolate-local token reuse prevents requesting a new OAuth token on every search.
+let tokenCache = { key: "", accessToken: "", expiresAt: 0 };
+
 const json = (data, status = 200) => new Response(JSON.stringify(data), {
   status,
   headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-content-type-options": "nosniff" }
 });
 async function getToken(env, version) {
+  const cacheKey = version + ":" + env.CREATORS_API_CLIENT_ID;
+  if (tokenCache.key === cacheKey && tokenCache.accessToken && Date.now() < tokenCache.expiresAt) {
+    return tokenCache.accessToken;
+  }
   const form = new URLSearchParams({ grant_type: "client_credentials", client_id: env.CREATORS_API_CLIENT_ID, client_secret: env.CREATORS_API_CLIENT_SECRET });
   let endpoint, headers, body;
   if (version.startsWith("3.")) {
@@ -32,7 +39,14 @@ async function getToken(env, version) {
   if (!response.ok) throw new Error("Amazon token request failed with status " + response.status);
   const data = await response.json();
   if (!data.access_token) throw new Error("Amazon token response did not include an access token");
-  return data.access_token;
+  const lifetimeSeconds = Number.isFinite(Number(data.expires_in)) ? Number(data.expires_in) : 3600;
+  tokenCache = {
+    key: cacheKey,
+    accessToken: data.access_token,
+    // Refresh two minutes early to avoid edge cases around token expiry.
+    expiresAt: Date.now() + Math.max(60, lifetimeSeconds - 120) * 1000
+  };
+  return tokenCache.accessToken;
 }
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url);
