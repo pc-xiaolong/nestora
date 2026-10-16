@@ -168,7 +168,12 @@ export async function onRequestGet({ request, env }) {
       return json({ error: "Amazon Creators API returned status " + response.status + ". Check access, credential version, and marketplace approval." }, 502);
     }
     const data = await response.json();
-    const items = (data.searchResult?.items || []).map(item => {
+    // A 2xx response is not necessarily a valid catalogue payload. Reject schema drift
+    // explicitly instead of silently presenting an empty product list or throwing a TypeError.
+    if (!data || typeof data !== "object" || !data.searchResult || !Array.isArray(data.searchResult.items)) {
+      return json({ error: "Amazon returned an unexpected response format. Please retry shortly; if the problem persists, verify the Creators API version and response schema." }, 502);
+    }
+    const items = data.searchResult.items.map(item => {
       const productUrl = item.detailPageURL || "";
       let safeUrl = "";
       try {
