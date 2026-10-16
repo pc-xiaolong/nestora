@@ -2,7 +2,7 @@
 
 **Make Every Space Work Smarter.**
 
-Nestora is a static multi-page affiliate-content website focused on practical small-space organization, storage, and home-office guides. Its optional product finder uses Cloudflare Pages Functions to call Amazon's Creators API server-side.
+Nestora is a static multi-page affiliate-content website focused on practical small-space organisation, technology gadgets, charging accessories, computer peripherals, smart-home products, and home-office guides. Its optional product finder uses Cloudflare Pages Functions to call Amazon's Creators API server-side. Marketplace and category changes cancel stale in-flight searches so the interface does not display results for a previous selection.
 
 ## Production architecture
 
