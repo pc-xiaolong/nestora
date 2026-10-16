@@ -34,6 +34,11 @@ assert.ok(api.includes('response.status === 429'), "Amazon rate limits must prod
 assert.ok(api.includes("fingerprintSecret(env.CREATORS_API_CLIENT_SECRET)"), "Credential rotation must invalidate cached tokens and product results");
 assert.ok(api.includes("parsed.searchParams.get(\"tag\") === market.tag"), "Vended links must match the configured marketplace Partner tag");
 assert.ok(!api.includes("parsed.searchParams.set(\"tag\""), "Never rewrite Amazon-vended links because it can break attribution");
+for (const category of ["charging", "power", "audio", "smart-home", "desk-tech", "computer-accessories", "wearables", "streaming"]) {
+  assert.ok(api.includes(category + ":"), `API technology category must be supported: ${category}`);
+  assert.ok(js.includes('title: "') && js.includes(category) || read("shop/index.html").includes('value="' + category + '"'), `Shop should expose technology category: ${category}`);
+}
+
 
 assert.ok(api.includes("IMAGE_HOSTS.has(imageUrl.hostname)"), "Product image hosts must be allowlisted");
 assert.ok(api.includes("!env.CREATORS_API_VERSION"), "Credential version must be explicit; do not silently assume a region");
