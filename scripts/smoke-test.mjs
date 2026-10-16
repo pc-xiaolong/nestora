@@ -26,6 +26,12 @@ assert.deepEqual(routes.exclude, [], "No API route exclusions should shadow the 
 const js = read("assets/site.js");
 const api = read("functions/api/products.js");
 assert.ok(!js.includes("CREATORS_API_CLIENT_SECRET"), "Amazon client secrets must never be included in browser JavaScript");
+assert.ok(api.includes("AbortSignal.timeout(8000)"), "OAuth requests must have a bounded timeout");
+assert.ok(api.includes("AbortSignal.timeout(10000)"), "Catalog requests must have a bounded timeout");
+assert.ok(api.includes("PRODUCT_CACHE_TTL_MS"), "Product results must be cached to reduce repeated upstream calls");
+assert.ok(api.includes("IMAGE_HOSTS.has(imageUrl.hostname)"), "Product image hosts must be allowlisted");
+assert.ok(api.includes("!env.CREATORS_API_VERSION"), "Credential version must be explicit; do not silently assume a region");
+assert.ok(!api.includes('env.CREATORS_API_VERSION || "3.2"'), "API must not silently select an OAuth region");
 for (const [market, tag, host] of [
   ["ae", "nestora073-21", "www.amazon.ae"],
   ["uk", "trivenico-21", "www.amazon.co.uk"],
