@@ -207,6 +207,9 @@ export async function onRequestGet({ request, env }) {
     if (error && (error.name === "TimeoutError" || error.name === "TypeError")) {
       return json({ error: "Amazon product lookup could not reach the upstream service. Please retry after a short delay." }, 503, { "retry-after": "30" });
     }
+    if (error && error.name === "SyntaxError") {
+      return json({ error: "Amazon returned an invalid response. Please retry shortly; if the problem persists, verify the upstream API response." }, 502);
+    }
     return json({ error: "Product lookup failed. Verify Creators API configuration in Cloudflare." }, 502);
   }
 }
