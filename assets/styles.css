@@ -71,3 +71,6 @@
 @media(max-width:600px){.product-finder{padding:16px}.finder-controls{align-items:stretch}.finder-controls .button{width:100%}.product-photo img{height:165px}}
 
 .pick-source{display:inline-block;margin-top:10px;font-size:.86rem;font-weight:700}.amazon-picks-section .trend-card{min-width:0}.amazon-picks-section .trend-content>p{font-size:.9rem;color:var(--muted)}
+
+/* Category-search cards intentionally do not pretend to show exact product photography. */
+.category-mark{min-height:92px;display:flex;align-items:center;justify-content:center;background:var(--sage);color:var(--green);font-size:2.1rem;font-weight:800;letter-spacing:.02em}
