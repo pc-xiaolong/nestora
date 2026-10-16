@@ -63,6 +63,65 @@
     el.setAttribute("rel", "sponsored nofollow noopener");
     el.setAttribute("target", "_blank");
   };
+  let marketplacePicks = [];
+  const renderMarketplacePicks = () => {
+    const grid = document.querySelector("#amazon-picks-grid");
+    const status = document.querySelector("#amazon-picks-status");
+    if (!grid || !status) return;
+    grid.replaceChildren();
+    const picks = marketplacePicks.filter(product => product.market === current);
+    picks.forEach(product => {
+      const card = document.createElement("article");
+      card.className = "trend-card";
+      const art = document.createElement("div");
+      art.className = "trend-art";
+      art.setAttribute("aria-hidden", "true");
+      art.textContent = "↗";
+      const content = document.createElement("div");
+      content.className = "trend-content";
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = product.category;
+      const title = document.createElement("h3");
+      title.textContent = product.title;
+      const note = document.createElement("p");
+      note.textContent = "Bestseller-inspired candidate. This opens Amazon search results, not a verified direct product listing or guaranteed rank.";
+      const link = document.createElement("a");
+      link.className = "button";
+      link.textContent = "View Amazon results ↗";
+      link.setAttribute("data-amazon-query", product.query);
+      setAmazonLink(link, product.query);
+      const copy = document.createElement("button");
+      copy.className = "copy-link";
+      copy.type = "button";
+      copy.textContent = "Copy affiliate link";
+      copy.setAttribute("data-copy-query", product.query);
+      const source = document.createElement("a");
+      source.className = "pick-source";
+      source.href = product.sourceUrl;
+      source.target = "_blank";
+      source.rel = "noopener noreferrer";
+      source.textContent = "Check Amazon bestseller page";
+      content.append(tag, title, note, link, copy, source);
+      card.append(art, content);
+      grid.append(card);
+    });
+    status.textContent = picks.length + " tagged search candidates for Amazon " + marketplaces[current].label + ". These are not confirmed direct product links or live rankings.";
+  };
+  const initMarketplacePicks = async () => {
+    try {
+      const response = await fetch("/assets/amazon-picks.json", { headers: { "accept": "application/json" }, credentials: "omit", cache: "no-cache" });
+      if (!response.ok) throw new Error("Picks unavailable");
+      const catalogue = await response.json();
+      if (!catalogue || catalogue.schemaVersion !== 1 || !Array.isArray(catalogue.products)) throw new Error("Invalid picks");
+      marketplacePicks = catalogue.products.filter(product => product && ["uk", "ae", "us"].includes(product.market) && typeof product.title === "string" && typeof product.query === "string" && typeof product.sourceUrl === "string" && /^https:\/\/(www\\.)?amazon\\.(co\\.uk|com|ae)\//.test(product.sourceUrl));
+      renderMarketplacePicks();
+    } catch (_) {
+      marketplacePicks = [];
+      const status = document.querySelector("#amazon-picks-status");
+      if (status) status.textContent = "Curated search candidates are temporarily unavailable. Use the category finder below.";
+    }
+  };
   const renderTrending = () => {
     const grid = document.querySelector("#trend-grid");
     if (!grid) return;
@@ -125,6 +184,7 @@
     document.querySelectorAll("[data-amazon-query]").forEach(el => setAmazonLink(el, el.getAttribute("data-amazon-query")));
     document.querySelectorAll("[data-market-label]").forEach(el => { el.textContent = marketplaces[current].label; });
     renderTrending();
+    renderMarketplacePicks();
     renderPartnerCatalogue();
   };
   const initLiveProductFinder = () => {
@@ -375,6 +435,7 @@
     });
     initGuideFinder();
     initLiveProductFinder();
+    initMarketplacePicks();
     initPartnerCatalogue();
     applyMarket(current);
   });
