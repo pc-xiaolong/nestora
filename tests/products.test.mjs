@@ -110,6 +110,41 @@ test("fails closed when configured Cloudflare rate limiting is unavailable", asy
   assert.equal(response.headers.get("retry-after"), "10");
 });
 
+test("uses the optional Cloudflare rate-limit binding when configured", async () => {
+  const request = new Request("https://nestora.test/api/products?market=uk&category=cables", {
+    headers: { "cf-connecting-ip": "198.51.100.77" }
+  });
+  let calls = 0;
+  const allowed = await onRequestGet({
+    request,
+    env: { PRODUCT_RATE_LIMITER: { limit: async input => {
+      calls++;
+      assert.equal(input.key, "products:198.51.100.77");
+      return { success: true };
+    } } }
+  });
+  assert.equal(calls, 1);
+  assert.equal(allowed.status, 503, "allowed request should continue to the missing-credentials guard");
+
+  const blocked = await onRequestGet({
+    request,
+    env: { PRODUCT_RATE_LIMITER: { limit: async () => ({ success: false }) } }
+  });
+  assert.equal(blocked.status, 429);
+  assert.equal(blocked.headers.get("retry-after"), "60");
+});
+
+test("returns a controlled response if configured rate-limit binding fails", async () => {
+  const response = await onRequestGet({
+    request: new Request("https://nestora.test/api/products?market=uk&category=cables", {
+      headers: { "cf-connecting-ip": "198.51.100.78" }
+    }),
+    env: { PRODUCT_RATE_LIMITER: { limit: async () => { throw new Error("binding unavailable"); } } }
+  });
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("retry-after"), "10");
+});
+
 test("returns a controlled configuration response when credentials are absent", async () => {
   const response = await onRequestGet({ request: makeRequest("?market=uk&category=cables"), env: {} });
   assert.equal(response.status, 503);
