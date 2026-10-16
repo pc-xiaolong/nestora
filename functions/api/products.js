@@ -98,7 +98,7 @@ export async function onRequestGet({ request, env }) {
   if (isRateLimited(request)) {
     return json({ error: "Too many product lookup requests. Wait briefly before retrying." }, 429, { "retry-after": "60" });
   }
-  const marketKey = url.searchParams.get("market") || "ae";
+  const marketKey = url.searchParams.get("market") || "uk";
   const category = url.searchParams.get("category") || "cables";
   const market = MARKETS[marketKey];
   const keywords = CATEGORIES[category];
