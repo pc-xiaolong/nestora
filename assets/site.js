@@ -130,7 +130,7 @@
       const card = document.createElement("article");
       card.className = "trend-card";
       const art = document.createElement("div");
-      art.className = "trend-art";
+      art.className = "category-mark";
       art.setAttribute("aria-hidden", "true");
       art.textContent = product.icon;
       const content = document.createElement("div");
@@ -184,7 +184,6 @@
     document.querySelectorAll("[data-amazon-query]").forEach(el => setAmazonLink(el, el.getAttribute("data-amazon-query")));
     document.querySelectorAll("[data-market-label]").forEach(el => { el.textContent = marketplaces[current].label; });
     renderTrending();
-    renderMarketplacePicks();
     renderPartnerCatalogue();
   };
   const initLiveProductFinder = () => {
@@ -435,7 +434,6 @@
     });
     initGuideFinder();
     initLiveProductFinder();
-    initMarketplacePicks();
     initPartnerCatalogue();
     applyMarket(current);
   });
