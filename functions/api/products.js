@@ -117,9 +117,10 @@ export async function onRequestGet({ request, env }) {
       let safeUrl = "";
       try {
         const parsed = new URL(productUrl);
-        if (parsed.protocol === "https:" && parsed.hostname === market.host && !parsed.username && !parsed.password && !parsed.port) {
-          parsed.searchParams.set("tag", market.tag);
-          safeUrl = parsed.href;
+        // Amazon's Creators API vended links must not be altered. Validate the expected Partner tag,
+        // then preserve the exact URL returned by Amazon to protect attribution and policy compliance.
+        if (parsed.protocol === "https:" && parsed.hostname === market.host && !parsed.username && !parsed.password && !parsed.port && parsed.searchParams.get("tag") === market.tag) {
+          safeUrl = productUrl;
         }
       } catch (_) {}
       return {
