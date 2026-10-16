@@ -38,6 +38,33 @@ In Cloudflare, open the `nesstora` Pages project, then **Settings → Variables 
 
 Only set the version Amazon actually issued. An accepted Associates account and separate API approval are required. Never place the client secret in browser code, repository files, issues, or logs.
 
+## Multi-network affiliate catalogue (Awin-ready)
+
+`assets/affiliate-products.json` is the versioned catalogue for approved non-Amazon partner offers. It intentionally starts empty: Awin advertiser approval and real tracking URLs are not available yet, so Nestora must not fabricate links or publish unverified offers.
+
+Each active product must use this shape:
+
+```json
+{
+  "id": "approved-offer-001",
+  "title": "Product title",
+  "category": "Home organisation",
+  "network": "awin",
+  "retailer": "Approved advertiser",
+  "market": "uk",
+  "affiliateUrl": "https://www.awin1.com/cread.php?...",
+  "imageUrl": null,
+  "status": "active"
+}
+```
+
+- Add an offer only after the relevant advertiser programme approves the account and the URL is generated or verified in Awin.
+- `network` must be `awin`, `status` must be `active`, and `market` must be `uk`, `ae`, or `us`.
+- Affiliate URLs must be HTTPS Awin tracking URLs (`awin1.com` / `awin.com`). Direct retailer URLs and placeholders are rejected by the frontend validator.
+- Product images are optional; only use images the advertiser/network permits. Confirm image rights and market availability before activation.
+- Offers render only on `/shop/` and only for the currently selected market. If the catalogue is empty or invalid, the section stays hidden and Amazon shopping remains unaffected.
+- Update the affiliate disclosure before enabling a new network publicly, and make the network relationship clear near recommendations.
+
 ## Quality checks
 
 Requires Node.js 22 or later:
