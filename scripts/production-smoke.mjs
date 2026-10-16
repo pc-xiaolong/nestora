@@ -22,7 +22,7 @@ async function html(path, required, options = {}) {
 }
 
 const home = await html("/", [
-  "<title>", "rel=\"canonical\"", "name=\"description\"", "Content-Security-Policy"
+  "<title>", "rel=\"canonical\"", "name=\"description\""
 ]);
 for (const header of [
   "x-content-type-options",
