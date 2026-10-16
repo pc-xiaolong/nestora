@@ -1,0 +1,9 @@
+# Keep repository and deployment source files out of the public static asset bundle.
+.git/
+.github/
+docs/
+functions/
+README.md
+wrangler.jsonc
+worker.js
+.assetsignore
