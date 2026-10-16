@@ -86,6 +86,15 @@ const shopHtml = read("shop/index.html");
 assert.ok(shopHtml.includes('id="partner-products-section"'), "Shop must contain the conditional partner-offers section");
 assert.ok(shopHtml.includes('id="partner-products-grid"'), "Shop must contain the partner product grid");
 
+// Production metadata and sitemap invariants: catch regressions before Pages deploys.
+const sitemap = read("sitemap.xml");
+assert.ok(sitemap.includes("<urlset"), "Sitemap must be a valid sitemap document");
+assert.ok(read("robots.txt").includes("Sitemap: https://nesstora.pages.dev/sitemap.xml"), "Robots file must point to the production sitemap");
+const productionOrigin = "https://nesstora.pages.dev";
+assert.ok(sitemap.includes("<loc>" + productionOrigin + "/</loc>"), "Sitemap must include the production homepage");
+assert.ok(sitemap.includes("<loc>" + productionOrigin + "/shop/</loc>"), "Sitemap must include the shop");
+assert.ok(sitemap.includes("<loc>" + productionOrigin + "/guides/</loc>"), "Sitemap must include the guide directory");
+
 const htmlFiles = [];
 function walk(dir) {
   for (const entry of readdirSync(join(root, dir), { withFileTypes: true })) {
@@ -99,6 +108,16 @@ walk(".");
 const broken = [];
 for (const file of htmlFiles) {
   const html = read(file);
+  assert.match(html, /<html\b[^>]*\blang=["'][a-z-]+["']/i, `${file}: document language must be declared`);
+  assert.match(html, /<title>[^<]+<\/title>/i, `${file}: page title is required`);
+  assert.match(html, /<h1\b/i, `${file}: a primary heading is required`);
+  if (file !== "404.html") {
+    assert.match(html, /<meta\s+name=["']description["']\s+content=["'][^"']+["']/i, `${file}: SEO description is required`);
+    const canonical = html.match(/<link\s+rel=["']canonical["']\s+href=["']([^"']+)["']/i);
+    assert.ok(canonical, `${file}: canonical URL is required`);
+    assert.ok(canonical[1].startsWith(productionOrigin + "/"), `${file}: canonical must use the production origin`);
+    assert.ok(sitemap.includes("<loc>" + canonical[1] + "</loc>"), `${file}: canonical URL must be represented in sitemap`);
+  }
   const attrs = [...html.matchAll(/\b(?:href|src)\s*=\s*["']([^"'#]+)["']/gi)].map(match => match[1]);
   for (const value of attrs) {
     if (/^(?:https?:|mailto:|tel:|data:|javascript:|\/\/)/i.test(value)) continue;
@@ -117,4 +136,4 @@ for (const file of htmlFiles) {
   }
 }
 assert.deepEqual(broken, [], "Every local HTML href/src should resolve");
-console.log(`Nestora smoke checks passed: configuration, API routing, affiliate IDs, and ${htmlFiles.length} HTML pages checked.`);
+console.log(`Nesstora smoke checks passed: configuration, API routing, affiliate IDs, and ${htmlFiles.length} HTML pages checked.`);
