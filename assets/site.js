@@ -63,6 +63,38 @@
     el.setAttribute("rel", "sponsored nofollow noopener");
     el.setAttribute("target", "_blank");
   };
+  const categoryPhotoUrls = [
+    ["audio", "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=80"],
+    ["computer", "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=80"],
+    ["desk", "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80"],
+    ["cable", "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=900&q=80"],
+    ["storage", "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=900&q=80"],
+    ["home", "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=900&q=80"],
+    ["kitchen", "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=900&q=80"],
+    ["travel", "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=900&q=80"],
+    ["fitness", "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80"],
+    ["pet", "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=900&q=80"],
+    ["garden", "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=900&q=80"],
+    ["car", "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80"],
+    ["gaming", "https://images.unsplash.com/photo-1593305841991-05c297ba4575?auto=format&fit=crop&w=900&q=80"],
+    ["book", "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=900&q=80"],
+    ["light", "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=80"],
+    ["default", "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80"]
+  ];
+  const createCategoryPhoto = (title, category = "") => {
+    const text = (String(title || "") + " " + String(category || "")).toLowerCase();
+    const match = categoryPhotoUrls.find(([key]) => key !== "default" && text.includes(key));
+    const url = (match || categoryPhotoUrls[categoryPhotoUrls.length - 1])[1];
+    const art = document.createElement("div");
+    art.className = "trend-art category-photo-art";
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = "Illustrative category photograph for " + (title || category || "this category");
+    img.loading = "lazy";
+    img.referrerPolicy = "no-referrer";
+    art.append(img);
+    return art;
+  };
   let marketplacePicks = [];
   const renderMarketplacePicks = () => {
     const grid = document.querySelector("#amazon-picks-grid");
@@ -73,10 +105,7 @@
     picks.forEach(product => {
       const card = document.createElement("article");
       card.className = "trend-card";
-      const art = document.createElement("div");
-      art.className = "trend-art";
-      art.setAttribute("aria-hidden", "true");
-      art.textContent = "↗";
+      const art = createCategoryPhoto(product.title, product.category);
       const content = document.createElement("div");
       content.className = "trend-content";
       const tag = document.createElement("span");
@@ -129,10 +158,7 @@
     (productsByMarket[current] || productsByMarket.uk).forEach(product => {
       const card = document.createElement("article");
       card.className = "trend-card";
-      const art = document.createElement("div");
-      art.className = "category-mark";
-      art.setAttribute("aria-hidden", "true");
-      art.textContent = product.icon;
+      const art = createCategoryPhoto(product.title, product.tag);
       const content = document.createElement("div");
       content.className = "trend-content";
       const tag = document.createElement("span");
