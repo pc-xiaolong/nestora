@@ -275,3 +275,40 @@ test("maps upstream network failures to retryable service-unavailable responses"
     globalThis.fetch = originalFetch;
   }
 });
+
+test("maps Amazon OAuth timeouts to retryable service-unavailable responses", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => { throw new DOMException("simulated OAuth timeout", "TimeoutError"); };
+  try {
+    const response = await onRequestGet({
+      request: makeRequest("?market=uk&category=audio"),
+      env: { CREATORS_API_CLIENT_ID: "unit-test-oauth-timeout", CREATORS_API_CLIENT_SECRET: "test-only-secret", CREATORS_API_VERSION: "3.1" }
+    });
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get("retry-after"), "30");
+    assert.match((await response.json()).error, /could not reach the upstream service/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("maps Amazon catalog timeouts to retryable service-unavailable responses", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async input => {
+    if (String(input).includes("/auth/o2/token")) {
+      return new Response(JSON.stringify({ access_token: "timeout-test-token", expires_in: 3600 }), { status: 200 });
+    }
+    throw new DOMException("simulated catalog timeout", "TimeoutError");
+  };
+  try {
+    const response = await onRequestGet({
+      request: makeRequest("?market=us&category=audio"),
+      env: { CREATORS_API_CLIENT_ID: "unit-test-catalog-timeout", CREATORS_API_CLIENT_SECRET: "test-only-secret", CREATORS_API_VERSION: "3.1" }
+    });
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get("retry-after"), "30");
+    assert.match((await response.json()).error, /could not reach the upstream service/i);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
